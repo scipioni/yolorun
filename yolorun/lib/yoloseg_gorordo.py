@@ -319,6 +319,7 @@ class YOLOSeg:
         self.input_shape = model_inputs[0].shape
         self.input_height = self.input_shape[2]
         self.input_width = self.input_shape[3]
+        print(f"model input: {self.input_width}x{self.input_height}")
 
     def get_output_details(self):
         model_outputs = self.session.get_outputs()
