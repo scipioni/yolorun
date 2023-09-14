@@ -18,4 +18,5 @@ tasks:
   cli:
     cmds:
       - mkdir -p runtime && touch runtime/bash_history
+      - xhost +localhost
       - docker compose run --rm yolorun bash
