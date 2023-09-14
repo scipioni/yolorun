@@ -26,13 +26,12 @@ def main():
         yoloseg = YOLOSeg(config.model, conf_thres=0.3, iou_thres=0.5)
 
     with timing("total"):
-        counter = Counter("inference")
+        counter = Counter()
         for filename in config.images:
             frame = cv.imread(filename)
 
-            counter.start()
-            yoloseg(frame)
-            counter.end()
+            with counter("inference"):
+                yoloseg(frame)
 
             frame_out = yoloseg.draw_masks(frame)
 

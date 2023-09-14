@@ -18,7 +18,8 @@ class Counter:
         self.counter = 0
         self.mean = .0
         self.description = description
-    
+        self._data = {}
+
     # @classmethod
     # @contextmanager
     # def start(cls) -> None:
@@ -28,12 +29,17 @@ class Counter:
     # #def end(self):
 
     def __str__(self):
-        return f"{self.description} mean={1000*self.mean:.1f}ms counter={self.counter}"
+        response = []
+        for key in self._data:
+            response.append(f"{key} mean={1000*self._data[key]['mean']:.1f}ms counter={self._data[key]['counter']}")
+        return "\n".join(response)
 
-    def start(self):
-        self._start = time()
-
-    def end(self):
-        elapsed = time() - self._start
-        self.counter += 1
-        self.mean = self.mean*(self.counter-1)/self.counter + elapsed/self.counter
+    @contextmanager
+    def __call__(self, key="generic"):
+        if not key in self._data:
+            self._data[key] = {"start":0, "mean":0, "counter":0}
+        self._data[key]["start"] = time()
+        yield
+        elapsed = time() - self._data[key]["start"]
+        self._data[key]["counter"] += 1
+        self._data[key]["mean"] = self._data[key]["mean"]*(self._data[key]["counter"]-1)/self._data[key]["counter"] + elapsed/self._data[key]["counter"]

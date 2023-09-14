@@ -179,6 +179,7 @@ class YOLOSeg:
         # Get model info
         self.get_input_details()
         self.get_output_details()
+        print("onnx device:", onnxruntime.get_device())
 
     def segment_objects(self, image):
         input_tensor = self.prepare_input(image)
