@@ -1,0 +1,29 @@
+version: "3"
+name: "yolorun"
+services:
+  yolorun:
+    image: yololab/yolorun
+    build: 
+      context: .
+      #target: pdm
+    #command: "process_cv"
+    volumes:
+      - ${MODELS}:/models
+      - ${DATASET}:/dataset
+      - ./yolorun:/app/yolorun
+      - /etc/inputrc:/etc/inputrc:ro
+      - ./runtime/bash_history:/root/.bash_history
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+      - "/dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]  

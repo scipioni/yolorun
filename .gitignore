@@ -1,0 +1,4 @@
+*.onnx
+.env
+.pdm-python
+/runtime

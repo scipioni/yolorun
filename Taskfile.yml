@@ -1,0 +1,21 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  build:
+    cmds:
+      - docker compose build
+
+  cli:
+    cmds:
+      - mkdir -p runtime && touch runtime/bash_history
+      - docker compose run --rm yolorun bash

@@ -1,0 +1,25 @@
+
+[project]
+name = "yolorun"
+version = "0.1.4"
+description = ""
+authors = [
+    {name = "Stefano Scipioni", email = "stefano.scipioni@csgalileo.net"},
+]
+dependencies = [
+    "configargparse>=1.5.3",
+    "numpy>=1.25.2",
+    "onnxruntime-gpu>=1.15.1",
+    "imagesize>=1.4.1",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project.scripts]
+yolo2ls = "yolorun.yolo2ls:main"
+grabber = "yolorun.grabber:main"
