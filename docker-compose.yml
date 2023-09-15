@@ -5,7 +5,7 @@ services:
     image: yololab/yolorun
     build: 
       context: .
-      target: opencv
+      #target: runtime
       # args:
       #   PYTHON_VERSION: 3.10
       #   CUDA_VERSION: 11.5.2

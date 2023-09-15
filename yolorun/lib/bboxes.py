@@ -1,3 +1,7 @@
+import time
+import cv2 as cv
+import os
+
 class BBox:
     confidence = 1.0
 
@@ -71,6 +75,9 @@ class BBoxes:
             result.append(str(box))
         return "\n".join(result)
 
+    def reset(self):
+        self.bboxes = []
+
     def add(self, bbox: BBox):
         self.bboxes.append(bbox)
 
@@ -100,7 +107,11 @@ class BBoxes:
             return []
         data = open(txtfile).readlines()
         for obj in data:
-            classId, xc, yc, wf, hf = map(float, obj.strip().split(" "))
+            try:
+                classId, xc, yc, wf, hf = map(float, obj.strip().split(" "))
+            except:
+                #print("yolo bounding box dataset not recognized %s, skip" % txtfile)
+                return []
             wp = wf * w
             hp = hf * h
             x1 = xc * w - wp / 2

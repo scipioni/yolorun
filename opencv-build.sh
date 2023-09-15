@@ -58,10 +58,10 @@ cmake \
 	-D BUILD_EXAMPLES=OFF \
 	-D CMAKE_BUILD_TYPE=RELEASE \
 	-D CMAKE_INSTALL_PREFIX=/build/release \
-	-D OPENCV_PYTHON3_INSTALL_PATH=$($PYTHON -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
 	..
 
 
+#-D OPENCV_PYTHON3_INSTALL_PATH=$($PYTHON -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
 #-D CMAKE_INSTALL_PREFIX=$($PYTHON -c "import sys; print(sys.prefix)") \
 make -j${JOBS} install/strip
 

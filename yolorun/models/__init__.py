@@ -2,7 +2,7 @@
 import cv2 as cv
 import logging
 
-#from yolorun.grabber import BBoxes
+from yolorun.lib.grabber import BBoxes
 
 log = logging.getLogger(__name__)
 
@@ -11,8 +11,16 @@ class Model:
         self.config = config
         self.segmentation = False
         log.info("initialized model %s", self.__class__)
+        _sizes = config.size.split("x")
+        size = int(_sizes[0])
+        if len(_sizes) > 1:
+            self.size = [size, int(_sizes[1])]
+        else:
+            self.size = [size, size]
+        self.bboxes = BBoxes(truth=False)
 
     def predict(self, frame):
+        self.bboxes.reset()
         self.frame = frame
         self.frame_dirty = None
 
@@ -33,10 +41,7 @@ class Model:
         cv.imshow(self.config.model, frame)
 
     def getBBoxes(self):
-        return None
-    #     return BBoxes(truth=False)
-
-
+        return self.bboxes
 class ModelDummy(Model):
     pass
 
@@ -45,6 +50,10 @@ def getModel(config):
         from .ultralytics import ModelYolo
         return ModelYolo(config)
 
+    elif ".cfg" in config.model:
+        from .darknet import ModelDarknet
+        return ModelDarknet(config) 
+    
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)

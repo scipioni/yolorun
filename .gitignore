@@ -2,5 +2,4 @@
 .env
 .pdm-python
 /runtime
-*.pth
-*.pt
+/models/*

@@ -32,6 +32,7 @@ def get_config() -> Any:
     
     #parser.add_argument("--models", default="./models", help="models repo")
     parser.add_argument("--model", default="", help="model name")
+    parser.add_argument("--weights", default="", help="model weights (darknet)")
     parser.add_argument("--show-ann", action="store_true", default=False, help="show annotator info")
     parser.add_argument("--url", default="", help="camera url, for example rtsp://10.1.16.107:554/s0")
     parser.add_argument("--confidence-min", type=float, default=0.1)
@@ -109,7 +110,8 @@ def get_config() -> Any:
     parser.add_argument("--move", default="", help="move files to <path>")
     parser.add_argument("--save", default="", help="autolabeling to <path>")
     parser.add_argument("--merge", help="merge prediction with ground truthclea", action="store_true", default=False)
-
+    parser.add_argument("--size", default="416", help="yolo widthxheight size")
+    parser.add_argument("--cpu", action="store_true", help="disable CUDA", default=False)
 
     config = parser.parse_args()
     logging.basicConfig(

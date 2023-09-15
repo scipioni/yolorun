@@ -2,7 +2,7 @@ import cv2 as cv
 from ultralytics import YOLO
 
 from .__init__ import Model
-from yolorun.grabber import BBoxes, BBox
+from yolorun.lib.grabber import BBoxes, BBox
 
 
 class ModelYolo(Model):
@@ -16,29 +16,11 @@ class ModelYolo(Model):
     def predict(self, frame):
         super().predict(frame)
         self.h, self.w = frame.shape[:2]
-        results = self.net(self.frame, verbose=False, stream=True)
-        # self.boxes = results[0].boxes
-        self.boxes = []
+        results = self.net.predict(self.frame, imgsz=self.size, conf=self.config.confidence_min, verbose=False, stream=True)
         for result in results:
             for box in result.boxes.cpu().numpy():
                 if box.conf[0] > self.config.confidence_min:
-                    self.boxes.append(box)
-
-    def getBBoxes(self):
-        bboxes = BBoxes(truth=False)
-        for box in self.boxes:
-            x1, y1, x2, y2 = box.xyxy[0].astype(int)[:4]
-            bboxes.add(
-                BBox(
-                    box.cls[0],
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    self.w,
-                    self.h,
-                    box.conf[0]
-                )
-            )
-        return bboxes
-
+                    x1, y1, x2, y2 = box.xyxy[0].astype(int)[:4]
+                    self.bboxes.add(
+                        BBox(box.cls[0], x1, y1, x2, y2, self.w, self.h, box.conf[0])
+                    )

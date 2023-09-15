@@ -21,10 +21,10 @@ RUN \
   curl \
   build-essential 
 
-#### stage: python 3.9
+#### stage: python
 FROM builder AS python
 #ARG NUMPY_VERSION=1.25.2
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 COPY ./deadsnakes/deadsnakes_ubuntu_ppa.gpg /etc/apt/trusted.gpg.d/deadsnakes_ubuntu_ppa.gpg
 COPY ./deadsnakes/deadsnakes-ubuntu-ppa-focal.list /etc/apt/sources.list.d/deadsnakes-ubuntu-ppa-focal.list
 
@@ -45,7 +45,7 @@ RUN python${PYTHON_VERSION} -m pip install numpy
 #### stage: build opencv library
 FROM python AS opencv
 ARG OPENCV_VERSION=4.8.0
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN \
@@ -60,12 +60,11 @@ WORKDIR /build
 
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
 COPY opencv-build.sh .
-#RUN ./opencv-build.sh ${OPENCV_VERSION} ${PYTHON_VERSION}
-
+RUN ./opencv-build.sh ${OPENCV_VERSION} ${PYTHON_VERSION}
 
 #### 3 stage: import opencv libray in smaller cuda image
 FROM nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu${UBUNTU_VERSION} AS runtime
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 ENV DEBIAN_FRONTEND=noninteractive
 
 COPY ./deadsnakes/deadsnakes_ubuntu_ppa.gpg /etc/apt/trusted.gpg.d/deadsnakes_ubuntu_ppa.gpg

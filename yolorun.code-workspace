@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../segmentation"
+		},
+		{
+			"path": "../yololab"
+		}
+	],
+	"settings": {}
+}

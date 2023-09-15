@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import time
+#import time
 from pathlib import Path
 
 from .config import CLASSES, COLORS
@@ -16,6 +16,7 @@ async def grab(config, grabber: Grabber, model: models.Model) -> None:
         try:
             frame, filename, bboxes_truth = await grabber.get()
         except Exception as e:
+            raise
             log.error(e)
             break
 
