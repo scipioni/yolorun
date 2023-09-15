@@ -42,24 +42,26 @@ JOBS=$(($JOBS - 1))
 #-D CUDA_ARCH_BIN="7.2,8.7" \
 # 2023
 cmake \
-	-D BUILD_LIST=core,improc,videoio,dnn,python3,cudev,dnn_objdetect,highgui,video \
+	-D BUILD_LIST=core,improc,videoio,dnn,python3,cudev,dnn_objdetect,highgui,video,calib3d,gapi \
 	-D WITH_CUDA=ON \
 	-D WITH_CUDNN=ON \
 	-D CUDA_GENERATION=Auto \
 	-D OPENCV_GENERATE_PKGCONFIG=ON \
 	-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${RELEASE}/modules \
 	-D WITH_GSTREAMER=ON \
-	-D WITH_LIBV4L=OFF \
+	-D WITH_LIBV4L=ON \
 	-D PYTHON_EXECUTABLE=$(which $PYTHON) \
-	-D OPENCV_PYTHON3_INSTALL_PATH=$($PYTHON -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
 	-D BUILD_opencv_python3=ON \
 	-D BUILD_opencv_python2=OFF \
 	-D BUILD_TESTS=OFF \
 	-D BUILD_PERF_TESTS=OFF \
 	-D BUILD_EXAMPLES=OFF \
 	-D CMAKE_BUILD_TYPE=RELEASE \
-	-D CMAKE_INSTALL_PREFIX=$($PYTHON -c "import sys; print(sys.prefix)") \
+	-D CMAKE_INSTALL_PREFIX=/build/release \
+	-D OPENCV_PYTHON3_INSTALL_PATH=$($PYTHON -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
 	..
 
+
+#-D CMAKE_INSTALL_PREFIX=$($PYTHON -c "import sys; print(sys.prefix)") \
 make -j${JOBS} install/strip
 

@@ -60,7 +60,7 @@ WORKDIR /build
 
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
 COPY opencv-build.sh .
-RUN ./opencv-build.sh ${OPENCV_VERSION} ${PYTHON_VERSION}
+#RUN ./opencv-build.sh ${OPENCV_VERSION} ${PYTHON_VERSION}
 
 
 #### 3 stage: import opencv libray in smaller cuda image
