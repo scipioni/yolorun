@@ -13,7 +13,7 @@ tasks:
 
   build:
     cmds:
-      - docker compose build
+      - docker compose build --progress=plain
 
   cli:
     cmds:

@@ -1,0 +1,15 @@
+
+[project]
+name = "opencv-python"
+version = "4.8.0"
+description = ""
+authors = [
+    {name = "Stefano Scipioni", email = "stefano.scipioni@csgalileo.net"},
+]
+dependencies = []
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"

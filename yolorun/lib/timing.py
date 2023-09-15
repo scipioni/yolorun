@@ -1,45 +1,56 @@
 from contextlib import contextmanager
 from time import time
+import logging
+log = logging.getLogger(__name__)
+
+global_counters = {}
 
 
 @contextmanager
-def timing(description: str) -> None:
+def timing(description: str, level=1, count=10) -> None:
+    global global_counters
     start = time()
     yield
-    elapsed_time = time() - start
+    elapsed_time = 1000 * (time() - start)
 
-    print(f"{description}: {1000*elapsed_time:.1f}ms")
+    if description not in global_counters:
+        global_counters[description] = {
+            "n": 0,
+            "mean": 0.0,
+            "current": 0.0,
+            "max": 0.0,
+            "min": 999.0,
+            "level": level,
+        }
 
+    counters = global_counters[description]
+    n = counters["n"]
+    if n > 100:
+        counters["max"] = counters["mean"]
+        counters["min"] = counters["mean"]
 
+    # if counters['n'] > 100: # ogni 100 resettiamo le medie
+    #     counters = {'n':0, 'mean': 0.0, 'current': 0.0, 'max':0.0, 'min':999.0}
 
-class Counter:
-    def __init__(self, description="counter"):
-        self._start = time()
-        self.counter = 0
-        self.mean = .0
-        self.description = description
-        self._data = {}
+    counters["current"] = elapsed_time
+    n += 1
+    counters["n"] = n
+    counters["mean"] = (elapsed_time + counters["mean"] * (n - 1)) / n
 
-    # @classmethod
-    # @contextmanager
-    # def start(cls) -> None:
-    #     #self.start = time()
-    #     yield
+    # if n > 10:
+    counters["max"] = max(elapsed_time, counters["max"])
+    counters["min"] = min(elapsed_time, counters["min"])
 
-    # #def end(self):
-
-    def __str__(self):
-        response = []
-        for key in self._data:
-            response.append(f"{key} mean={1000*self._data[key]['mean']:.1f}ms counter={self._data[key]['counter']}")
-        return "\n".join(response)
-
-    @contextmanager
-    def __call__(self, key="generic"):
-        if not key in self._data:
-            self._data[key] = {"start":0, "mean":0, "counter":0}
-        self._data[key]["start"] = time()
-        yield
-        elapsed = time() - self._data[key]["start"]
-        self._data[key]["counter"] += 1
-        self._data[key]["mean"] = self._data[key]["mean"]*(self._data[key]["counter"]-1)/self._data[key]["counter"] + elapsed/self._data[key]["counter"]
+    if n % count == 0:
+        log.debug(
+            "%s%s timing: n=%d current=%.1fms min=%.1fms max=%.1fms mean=%.1fms"
+            % (
+                "." * level,
+                description,
+                counters["n"],
+                counters["current"],
+                counters["min"],
+                counters["max"],
+                counters["mean"],
+            )
+        )

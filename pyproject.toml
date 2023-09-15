@@ -11,6 +11,7 @@ dependencies = [
     "numpy>=1.25.2",
     "onnxruntime-gpu>=1.15.1",
     "imagesize>=1.4.1",
+    "shared-ndarray2>=1.0.0.post0",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
@@ -21,5 +22,5 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [project.scripts]
+yolorun = "yolorun.main:main"
 yolo2ls = "yolorun.yolo2ls:main"
-grabber = "yolorun.grabber:main"
