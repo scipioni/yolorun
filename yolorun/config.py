@@ -26,7 +26,7 @@ def get_config() -> Any:
 
     parser.add_argument("images", nargs="*", default=[], help="list of images")
     parser.add_argument("--show", action="store_true", default=False)
-    parser.add_argument("--dummy", action="store_true", default=False)
+    parser.add_argument("--webcam", action="store_true", default=False)
     parser.add_argument("--step", action="store_true", default=False)
     parser.add_argument("--crop", action="store_true", default=False)
     

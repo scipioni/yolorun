@@ -58,15 +58,15 @@ def main():
 
     config = get_config()
 
-    if config.dummy:
-        grabber = DummyGrabber(config)
+    if config.webcam:
+        grabber = WebcamGrabber(config)
     elif config.images:
         if "rtsp" in config.images[0]:
             grabber = RtspGrabber(config)
         else:
             grabber = FileGrabber(config, config.images)
     else:
-        grabber = WebcamGrabber(config)
+        grabber = DummyGrabber(config)
 
     model = models.getModel(config)
 
