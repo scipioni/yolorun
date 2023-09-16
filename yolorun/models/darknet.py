@@ -56,8 +56,6 @@ class ModelDarknet(Model):
             frame, confThreshold, nmsThreshold
         )
 
-       
-
         for i, box in enumerate(boxes):
             left, top, width, height = box
             if confidences[i] < self.config.confidence_min:
@@ -74,19 +72,5 @@ class ModelDarknet(Model):
                     self.h,
                     confidences[i],
                 )
-                # {
-                #     "classId": classIds[i],
-                #     "confidence": confidences[i],
-                #     "box": (left, top, width, height),
-                #     "name": classIds[i], # self.classes[int(classIds[i])],
-                #     "frame_shape": frame.shape,
-                # }
             )
 
-    def getBBoxes(self):
-        return self.bboxes
-        # bboxes = BBoxes(truth=False)
-        # for box in self.boxes:
-        #     x1, y1, x2, y2 = box.xyxy[0].astype(int)[:4]
-        #     bboxes.add(BBox(box.cls[0], x1, y1, x2, y2, self.w, self.h, box.conf[0]))
-        # return bboxes

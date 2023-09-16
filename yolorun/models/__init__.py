@@ -45,15 +45,22 @@ class Model:
 class ModelDummy(Model):
     pass
 
-def getModel(config):
+def getModel(config):  
     if ".pt" in config.model:
-        from .ultralytics import ModelYolo
-        return ModelYolo(config)
-
+        if "-seg" in config.model:
+            print("TODO")
+        else:
+            from .ultralytics import ModelYolo
+            return ModelYolo(config)
     elif ".cfg" in config.model:
         from .darknet import ModelDarknet
         return ModelDarknet(config) 
-    
+    elif ".onnx" in config.model:    
+        if "-seg" in config.model:
+            from .yoloseg_gorordo import ModelOnnxSeg
+            return ModelOnnxSeg(config)
+        else:
+            print("TODO")
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)

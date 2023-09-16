@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import onnxruntime
 
+from .__init__ import Model
+
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
                'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
@@ -334,3 +336,17 @@ class YOLOSeg:
         boxes *= np.array([image_shape[1], image_shape[0], image_shape[1], image_shape[0]])
 
         return boxes
+
+
+class ModelOnnxSeg(Model):
+    def __init__(self, config):
+        super().__init__(config)
+
+        self.yoloseg = YOLOSeg(config.model, conf_thres=0.5, iou_thres=0.3)
+
+
+
+    def predict(self, frame):
+        boxes, scores, class_ids, masks = self.yoloseg(frame)
+
+        #combined_img = yoloseg.draw_masks(img)
