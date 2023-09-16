@@ -7,6 +7,9 @@ class ModelDarknet(Model):
     def __init__(self, config):
         super().__init__(config)
 
+        if not config.weights:
+            config.weights = config.model.replace(".cfg", ".weights")
+
         _net = cv.dnn.readNet(config.model, config.weights)
 
         self.net = cv.dnn_DetectionModel(_net)

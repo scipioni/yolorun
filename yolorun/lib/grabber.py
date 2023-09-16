@@ -119,10 +119,10 @@ class DummyGrabber(Grabber):
         super().__init__(config)
 
     async def get(self, key=None):
-        (do_continue, buff) = super().get(key=key)
+        (do_continue, buff, _) = super().get(key=key)
         if not do_continue:
             return (None, "", [])
-        return (np.zeros((2048, 1024, 1), np.uint8), self.counter, [])
+        return (np.zeros((1024, 1024, 3), np.uint8), self.counter, [])
 
 
 class WebcamGrabber(Grabber):
@@ -133,7 +133,7 @@ class WebcamGrabber(Grabber):
         self._vid = None
 
     async def get(self, key=None):
-        (do_continue, buff) = super().get(key=key)
+        (do_continue, buff, _) = super().get(key=key)
         if not do_continue:
             return (None, "", [])
         if not self._vid:
