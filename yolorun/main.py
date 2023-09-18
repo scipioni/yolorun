@@ -31,7 +31,6 @@ async def grab(config, grabber: Grabber, model: models.Model) -> None:
                 if bboxes_truth.has(config.filter_classes):
                     grabber.move(filename, config.move)
 
-
         model.predict(frame)
 
         bboxes_predicted = model.getBBoxes()
@@ -47,10 +46,10 @@ async def grab(config, grabber: Grabber, model: models.Model) -> None:
                     )
 
         if config.show:
-            model.prepare_show()
-            model.draw_bboxes(bboxes_predicted)
-            model.draw_bboxes(bboxes_truth)
-            model.show()
+            frame_show = frame.copy()
+            frame_show = bboxes_truth.draw(frame_show)
+            frame_show = bboxes_predicted.draw(frame_show)
+            model.show(frame_show)
 
 
 def main():

@@ -28,8 +28,7 @@ class ModelDarknet(Model):
             self.net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
             self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
 
-        self.w = 0
-        self.h = 0
+
 
     def __str__(self):
         return "  %s weigths=%s %.2fGFLOP size=%sx%sx%d CUDA=%s" % (
@@ -44,7 +43,7 @@ class ModelDarknet(Model):
 
     def predict(self, frame):
         super().predict(frame)
-        self.h, self.w = frame.shape[:2]
+        
 
         if len(frame.shape) > 2 and self.channels == 1:  # rete con un canale solo
             frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)

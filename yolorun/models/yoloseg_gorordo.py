@@ -5,6 +5,7 @@ import numpy as np
 import onnxruntime
 
 from .__init__ import Model
+from yolorun.lib.grabber import BBoxes, BBox
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -339,15 +340,52 @@ class YOLOSeg:
 
 
 class ModelOnnxSeg(Model):
+    segmentation = True
+
     def __init__(self, config):
         super().__init__(config)
 
         self.yoloseg = YOLOSeg(config.model, conf_thres=0.5, iou_thres=0.3)
-
+        #self.masks = []
 
 
     def predict(self, frame):
         super().predict(frame)
         boxes, scores, class_ids, masks = self.yoloseg(frame)
 
+        for i, box in enumerate(boxes):
+            left, top, right, bottom = box
+            if scores[i] < self.config.confidence_min:
+                continue
+
+            self.bboxes.add(
+                BBox(
+                    class_ids[i],
+                    left,
+                    top,
+                    right,
+                    bottom,
+                    self.w,
+                    self.h,
+                    scores[i],
+                    mask=masks[i]
+                )
+            )
+
         #combined_img = yoloseg.draw_masks(img)
+
+    def _draw_masks(self, frame, masks):
+        mask_img = frame.copy()
+        for i,box in enumerate(self.bboxes.get()):
+            color = (0,255,0)
+            x1, y1, x2, y2 = map(int, box.box)
+            crop_mask = masks[i][y1:y2, x1:x2, np.newaxis]
+            crop_mask_img = mask_img[y1:y2, x1:x2]
+            crop_mask_img = crop_mask_img * (1 - crop_mask) + crop_mask * color
+            mask_img[y1:y2, x1:x2] = crop_mask_img
+        self.frame_dirty = cv2.addWeighted(mask_img, mask_alpha, self.frame_dirty, 1 - mask_alpha, 0)
+
+    # def show(self, scale=1.0, mask_alpha=0.3):
+    #     self.frame_dirty = self._draw_masks(self.frame)
+    #     super().show(scale)
+

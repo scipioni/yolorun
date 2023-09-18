@@ -1,16 +1,18 @@
 import time
 import cv2 as cv
 import os
+import numpy as np
 
 class BBox:
     confidence = 1.0
 
-    def __init__(self, classId, x1, y1, x2, y2, w, h, confidence=1.0):
+    def __init__(self, classId, x1, y1, x2, y2, w, h, confidence=1.0, mask=None):
         self.classId = int(classId)
         self.w = w
         self.h = h
         self.box = (x1, y1, x2, y2)
         self.confidence = confidence
+        self.mask = mask
 
     def getYolo(self):
         x1, y1, x2, y2 = self.box
@@ -62,18 +64,30 @@ class BBox:
             lineType=cv.LINE_AA,
         )
 
+    def show_mask(self, mask_img):
+        color = (0,255,0)
+        x1, y1, x2, y2 = map(int, self.box)
+        crop_mask = self.mask[y1:y2, x1:x2, np.newaxis]
+        crop_mask_img = mask_img[y1:y2, x1:x2]
+        crop_mask_img = crop_mask_img * (1 - crop_mask) + crop_mask * color
+        mask_img[y1:y2, x1:x2] = crop_mask_img
+
 
 class BBoxes:
-    def __init__(self, truth=True):
+    def __init__(self, truth=True, segmentation=False):
         self.bboxes = []  # bboxes
         self.id = time.time()
         self.truth = truth
+        self.segmentation = segmentation
 
     def __repr__(self):
         result = [f"bboxes={self.id}"]
         for box in self.bboxes:
             result.append(str(box))
         return "\n".join(result)
+
+    def get(self):
+        return self.bboxes
 
     def reset(self):
         self.bboxes = []
@@ -116,12 +130,19 @@ class BBoxes:
                 y1 = yc * h - hp / 2
                 self.bboxes.append(BBox(classId, x1, y1, x1 + wp, y1 + hp, w, h))
             else:
-                print("yolo segmentation")
+                pass #print("yolo segmentation")
         return self.bboxes
 
-    def show(self, frame):
+    def draw(self, frame, mask_alpha=0.3):
         for box in self.bboxes:
             box.show(frame, self.truth)
+        if self.segmentation:
+            mask_img = frame.copy()
+            for box in self.bboxes:
+                if box.mask is not None:
+                    box.show_mask(mask_img)        
+            return cv.addWeighted(mask_img, mask_alpha, frame, 1 - mask_alpha, 0)
+        return frame
 
     def merge(self, bboxes_in, filter_classes):
         """

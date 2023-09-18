@@ -7,9 +7,10 @@ from yolorun.lib.grabber import BBoxes
 log = logging.getLogger(__name__)
 
 class Model:
+    segmentation = False
+
     def __init__(self, config):
         self.config = config
-        self.segmentation = False
         log.info("initialized model %s", self.__class__)
         _sizes = config.size.split("x")
         size = int(_sizes[0])
@@ -17,23 +18,27 @@ class Model:
             self.size = [size, int(_sizes[1])]
         else:
             self.size = [size, size]
-        self.bboxes = BBoxes(truth=False)
+        self.bboxes = BBoxes(truth=False, segmentation=self.segmentation)
+        self.w = 0
+        self.h = 0
 
     def predict(self, frame):
         self.bboxes.reset()
         self.frame = frame
         self.frame_dirty = None
+        self.h, self.w = frame.shape[:2]
 
-    def prepare_show(self):
-        if self.frame_dirty is None:
-            self.frame_dirty = self.frame.copy()
+    # def prepare_show(self):
+    #     if self.frame_dirty is None:
+    #         self.frame_dirty = self.frame.copy()
 
-    def draw_bboxes(self, bboxes):
-        if bboxes:
-            bboxes.show(self.frame_dirty)
+    # def draw_bboxes(self, bboxes):
+    #     #if bboxes:
+    #     bboxes.show(self.frame_dirty)
 
-    def show(self, scale=1.0):
-        frame = self.frame if self.frame_dirty is None else self.frame_dirty
+    def show(self, frame=None, scale=1.0):
+        # if frame is None:
+        #     frame = self.frame if self.frame_dirty is None else self.frame_dirty
         if scale != 1.0:
             h, w = frame.shape[:2]
             dim = (int(w * scale), int(h * scale))
