@@ -347,6 +347,7 @@ class ModelOnnxSeg(Model):
 
 
     def predict(self, frame):
+        super().predict(frame)
         boxes, scores, class_ids, masks = self.yoloseg(frame)
 
         #combined_img = yoloseg.draw_masks(img)

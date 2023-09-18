@@ -107,16 +107,16 @@ class BBoxes:
             return []
         data = open(txtfile).readlines()
         for obj in data:
-            try:
-                classId, xc, yc, wf, hf = map(float, obj.strip().split(" "))
-            except:
-                #print("yolo bounding box dataset not recognized %s, skip" % txtfile)
-                return []
-            wp = wf * w
-            hp = hf * h
-            x1 = xc * w - wp / 2
-            y1 = yc * h - hp / 2
-            self.bboxes.append(BBox(classId, x1, y1, x1 + wp, y1 + hp, w, h))
+            datas = [float(x) for x in obj.strip().split(" ")]
+            if len(datas) == 5: # yolo bounding boxes
+                classId, xc, yc, wf, hf = datas
+                wp = wf * w
+                hp = hf * h
+                x1 = xc * w - wp / 2
+                y1 = yc * h - hp / 2
+                self.bboxes.append(BBox(classId, x1, y1, x1 + wp, y1 + hp, w, h))
+            else:
+                print("yolo segmentation")
         return self.bboxes
 
     def show(self, frame):
