@@ -12,6 +12,7 @@ dependencies = [
     "onnxruntime-gpu>=1.15.1",
     "imagesize>=1.4.1",
     "shared-ndarray2>=1.0.0.post0",
+    "onnx>=1.14.1",
 ]
 requires-python = ">=3.9"
 readme = "README.md"

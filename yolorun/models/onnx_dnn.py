@@ -12,24 +12,15 @@ class ModelOnnxDnn(Model):
         super().__init__(config)
 
         self.net: cv.dnn.Net = cv.dnn.readNetFromONNX(config.model)
-        self.gflops = 0
+        
+        if not config.cpu:
+            self.net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
+            self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
 
-        # self.net = cv.dnn_DetectionModel(_net)
-        # self.net.setInputParams(
-        #     size=self.size,
-        #     mean=(0, 0, 0),
-        #     scale=1.0 / 255.0,
-        #     swapRB=True,
-        #     crop=config.crop,
-        # )
         self.channels = self.net.getParam(self.net.getLayerNames()[0]).shape[1]
         self.gflops = (
             self.net.getFLOPS((1, self.channels, self.size[0], self.size[1])) * 1e-9
         )
-        # if not config.cpu:
-        #     self.net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
-        #     self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
-
 
 
     def __str__(self):
