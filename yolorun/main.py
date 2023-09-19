@@ -68,6 +68,7 @@ def main():
         grabber = DummyGrabber(config)
 
     model = models.getModel(config)
+    log.info("model %s %s", model.__class__, model)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(grab(config, grabber, model))

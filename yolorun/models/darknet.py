@@ -1,7 +1,7 @@
 import cv2 as cv
 from .__init__ import Model
 from yolorun.lib.grabber import BBoxes, BBox
-
+from yolorun.lib.timing import timing
 
 class ModelDarknet(Model):
     def __init__(self, config):
@@ -29,7 +29,6 @@ class ModelDarknet(Model):
             self.net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
 
 
-
     def __str__(self):
         return "  %s weigths=%s %.2fGFLOP size=%sx%sx%d CUDA=%s" % (
             self.config.model,
@@ -51,9 +50,10 @@ class ModelDarknet(Model):
         confThreshold = 0.1
         nmsThreshold = 0.4
 
-        classIds, confidences, boxes = self.net.detect(
-            frame, confThreshold, nmsThreshold
-        )
+        with timing("cv.dnn.detect"):
+            classIds, confidences, boxes = self.net.detect(
+                frame, confThreshold, nmsThreshold
+            )
 
         for i, box in enumerate(boxes):
             left, top, width, height = box

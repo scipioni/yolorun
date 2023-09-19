@@ -11,7 +11,7 @@ class Model:
 
     def __init__(self, config):
         self.config = config
-        log.info("initialized model %s", self.__class__)
+        #log.info("initialized model %s", self.__class__)
         _sizes = config.size.split("x")
         size = int(_sizes[0])
         if len(_sizes) > 1:
@@ -65,7 +65,8 @@ def getModel(config):
             from .yoloseg_gorordo import ModelOnnxSeg
             return ModelOnnxSeg(config)
         else:
-            print("TODO")
+            from .onnx_dnn import ModelOnnxDnn
+            return ModelOnnxDnn(config)
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)

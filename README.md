@@ -2,6 +2,13 @@
 
 testing about yolo inference
 
+
+## build
+
+```
+task build
+```
+
 ## cli
 
 ```
@@ -18,6 +25,12 @@ Create project.js to import in labelstudio
 yolo2ls --out /tmp/project.js --prefix plates-01 /dataset/*txt
 ```
 
+## create onnx model
+
+from pt format
+```
+yolo export model=yolov8n.pt imgsz=640 format=onnx opset=12
+```
 
 ## autolabel of dataset
 

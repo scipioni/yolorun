@@ -25,19 +25,15 @@ def timing(description: str, level=1, count=10) -> None:
 
     counters = global_counters[description]
     n = counters["n"]
-    if n > 100:
-        counters["max"] = counters["mean"]
-        counters["min"] = counters["mean"]
-
-    # if counters['n'] > 100: # ogni 100 resettiamo le medie
-    #     counters = {'n':0, 'mean': 0.0, 'current': 0.0, 'max':0.0, 'min':999.0}
 
     counters["current"] = elapsed_time
     n += 1
     counters["n"] = n
-    counters["mean"] = (elapsed_time + counters["mean"] * (n - 1)) / n
 
-    # if n > 10:
+    if n <= 1: # il primo ciclo può essere lento, quindi lo escludiamo
+        return
+
+    counters["mean"] = (elapsed_time + counters["mean"] * (n - 1)) / n
     counters["max"] = max(elapsed_time, counters["max"])
     counters["min"] = min(elapsed_time, counters["min"])
 
