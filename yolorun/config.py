@@ -112,6 +112,7 @@ def get_config() -> Any:
     parser.add_argument("--merge", help="merge prediction with ground truthclea", action="store_true", default=False)
     parser.add_argument("--size", default="416", help="yolo widthxheight size")
     parser.add_argument("--cpu", action="store_true", help="disable CUDA", default=False)
+    parser.add_argument("--dnn", action="store_true", help="enable opencv dnn detection model", default=False)
 
     config = parser.parse_args()
     logging.basicConfig(

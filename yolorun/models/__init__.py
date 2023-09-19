@@ -65,8 +65,12 @@ def getModel(config):
             from .yoloseg_gorordo import ModelOnnxSeg
             return ModelOnnxSeg(config)
         else:
-            from .onnx_dnn import ModelOnnxDnn
-            return ModelOnnxDnn(config)
+            if config.dnn:
+                from .dnn import ModelDnn
+                return ModelDnn(config)
+            else:
+                from .onnx_dnn import ModelOnnxDnn
+                return ModelOnnxDnn(config)
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)
