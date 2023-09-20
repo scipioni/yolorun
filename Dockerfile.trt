@@ -11,18 +11,24 @@ ARG VERSION=23.08
 #### stage: nvidia
 FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV \
+  DEBIAN_FRONTEND=noninteractive \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONHASHSEED=random \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  DEBIAN_FRONTEND=noninteractive \
+  LANG=C.UTF-8 \
+  LC_ALL=C.UTF-8
 
 RUN \
   apt-get update && \
   apt-get install -y -q --no-install-recommends \
-  wget \
-  curl \
+  libgl1-mesa-glx \
   build-essential 
 
-
-#pip install opencv-python matplotlib
-# apt-get install libgl1-mesa-glx
+RUN pip install opencv-python matplotlib
 
 
 # #### stage: python
