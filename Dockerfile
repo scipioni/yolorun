@@ -141,7 +141,13 @@ COPY ./opencv-python ./opencv-python
 RUN pip install -e opencv-python && \
   pip install ultralytics
 
-FROM ultralitycs
+#FROM ultralitycs as tensorrt
+
+# gcc-x86-64-linux-gnu g++
+#RUN pip install nvidia-pyindex
+#RUN pip install nvidia-tensorrt
+
+#FROM tensorrt
 
 WORKDIR /project
 COPY pyproject.toml pdm.lock README.md ./

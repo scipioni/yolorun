@@ -65,3 +65,13 @@ find ./train -name "*txt" | xargs -n1 sed -i 's/^0/80/; s/^1/81/; s/^2/57/; s/^3
 # autolabel di persone, letti, sofa, tavoli e sedie
 yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filter-classes 0,56,57,59,60 --save /archive/dataset/fp/sofabed.autolabel
 ```
+
+
+## tensorrt working in progress
+
+
+create engine
+```
+cd /app/yolorun/experiments/TensorRT-For-YOLO-Series
+python export.py -o /models/yolov8n.onnx -e /models/yolov8n.trt --end2end --v8
+```

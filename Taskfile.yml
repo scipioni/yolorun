@@ -20,3 +20,12 @@ tasks:
       - mkdir -p runtime && touch runtime/bash_history
       - xhost local:root
       - docker compose run --rm yolorun bash
+
+  trt:
+    cmds:
+      - mkdir -p runtime && touch runtime/bash_history
+      - xhost local:root
+      - docker compose run --rm trt bash
+
+
+  
