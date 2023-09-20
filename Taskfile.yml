@@ -21,6 +21,10 @@ tasks:
       - xhost local:root
       - docker compose run --rm yolorun bash
 
+  trt:build:
+    cmds:
+      - docker compose build trt --progress=plain
+
   trt:
     cmds:
       - mkdir -p runtime && touch runtime/bash_history
