@@ -3,3 +3,5 @@
 .pdm-python
 /runtime
 /models/*
+__pycache__
+__pypackages__

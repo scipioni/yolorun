@@ -70,8 +70,22 @@ yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filt
 ## tensorrt working in progress
 
 
-create engine
+create onnx from *.pt
 ```
-cd /app/yolorun/experiments/TensorRT-For-YOLO-Series
-python export.py -o /models/yolov8n.onnx -e /models/yolov8n.trt --end2end --v8
+#cd /app/yolorun/experiments/TensorRT-For-YOLO-Series
+#python export.py -o /models/yolov8n.onnx -e /models/yolov8n.trt --end2end --v8
+#python trt.py -e /models/yolov8n.engine --end2end -i /samples/0a0a00b2fbe89a47.jpg -o /samples/out.jpg
+
+export-det --weights /models/yolov8n.pt --sim --input-shape 1 3 640 640 --device cuda:0
 ```
+
+create engine from onnx (run on same GPU that has to make inference)
+```
+trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
+```
+
+inference
+```
+python yolorun/yolov8/infer_det.py --engine /models/yolov8n.engine --imgs /samples
+```
+

@@ -27,9 +27,12 @@ tasks:
 
   trt:
     cmds:
-      - mkdir -p runtime && touch runtime/bash_history
-      - xhost local:root
-      - docker compose run --rm trt bash
+      - |
+        mkdir -p runtime && touch runtime/bash_history
+        xhost local:root
+        # export UID="$(id -u)" 
+        # export GID="$(id -g)"
+        docker compose run --rm trt bash
 
 
   

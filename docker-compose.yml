@@ -43,7 +43,9 @@ services:
       context: .
       dockerfile: Dockerfile.trt
       #target: runtime
-      # args:
+      args:
+        UID: ${UID}
+        GID: ${GID}
       #   PYTHON_VERSION: 3.10
       #   CUDA_VERSION: 11.5.2
       #   UBUNTU_VERSION: 20.04
@@ -51,13 +53,15 @@ services:
 
       #target: pdm
     #command: "process_cv"
+    #user: ${UID}
     volumes:
       - ${MODELS}:/models
       - ${DATASET}:/dataset
+      - ./samples:/samples
       - ./yolorun:/app/yolorun
       - ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
-      - ./runtime/bash_history:/root/.bash_history
+      - ./runtime/bash_history:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY
