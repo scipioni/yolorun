@@ -169,7 +169,7 @@ WORKDIR /project
 COPY pyproject.toml pdm.lock README.md ./
 
 RUN pdm install --prod --no-lock --no-editable --no-isolation
-RUN pdm install -G train --no-lock --no-editable --no-isolation
+#RUN pdm install -G train --no-lock --no-editable --no-isolation
 
 WORKDIR /app
 COPY ./yolorun ./yolorun

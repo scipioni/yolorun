@@ -71,6 +71,9 @@ def getModel(config):
             else:
                 from .onnx_dnn import ModelOnnxDnn
                 return ModelOnnxDnn(config)
+    elif ".engine" in config.model:
+        from .trt import ModelTrt
+        return ModelTrt(config) 
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)

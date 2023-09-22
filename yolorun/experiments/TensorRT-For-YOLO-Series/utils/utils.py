@@ -104,11 +104,7 @@ class BaseEngine(object):
     def inference(self, img_path, conf=0.5, end2end=False):
         origin_img = cv2.imread(img_path)
         img, ratio = preproc(origin_img, self.imgsz, self.mean, self.std)
-        import time
-        start = time.time()
-        for i in range(1000):
-            data = self.infer(img)
-        print("time:", str(time.time()-start))
+        data = self.infer(img)
         if end2end:
             num, final_boxes, final_scores, final_cls_inds = data
             final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
