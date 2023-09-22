@@ -4,10 +4,69 @@ import pycuda.autoinit
 import pycuda.driver as cuda
 import numpy as np
 import time
+from numpy import ndarray
+from typing import List, Tuple, Union
 
-from .__init__ import Model
+from yolorun.models import Model
 from yolorun.lib.grabber import BBoxes, BBox
+from yolorun.lib.timing import timing
 
+def preproc(image, input_size, mean, std, swap=(2, 0, 1)):
+    if len(image.shape) == 3:
+        padded_img = np.ones((input_size[0], input_size[1], 3)) * 114.0
+    else:
+        padded_img = np.ones(input_size) * 114.0
+    img = np.array(image)
+    r = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
+    resized_img = cv.resize(
+        img,
+        (int(img.shape[1] * r), int(img.shape[0] * r)),
+        interpolation=cv.INTER_LINEAR,
+    ).astype(np.float32)
+    padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+    padded_img = padded_img[:, :, ::-1]
+    padded_img /= 255.0
+    if mean is not None:
+        padded_img -= mean
+    if std is not None:
+        padded_img /= std
+    padded_img = padded_img.transpose(swap)
+    padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
+    return padded_img, r
+
+def letterbox(im: ndarray,
+              new_shape: Union[Tuple, List] = (640, 640),
+              color: Union[Tuple, List] = (114, 114, 114)) \
+        -> Tuple[ndarray, float, Tuple[float, float]]:
+    # Resize and pad image while meeting stride-multiple constraints
+    shape = im.shape[:2]  # current shape [height, width]
+    if isinstance(new_shape, int):
+        new_shape = (new_shape, new_shape)
+    # new_shape: [width, height]
+
+    # Scale ratio (new / old)
+    r = min(new_shape[0] / shape[1], new_shape[1] / shape[0])
+    # Compute padding [width, height]
+    new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+    dw, dh = new_shape[0] - new_unpad[0], new_shape[1] - new_unpad[
+        1]  # wh padding
+
+    dw /= 2  # divide padding into 2 sides
+    dh /= 2
+
+    if shape[::-1] != new_unpad:  # resize
+        im = cv.resize(im, new_unpad, interpolation=cv.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    im = cv.copyMakeBorder(im,
+                            top,
+                            bottom,
+                            left,
+                            right,
+                            cv.BORDER_CONSTANT,
+                            value=color)  # add border
+    return np.ascontiguousarray(im, dtype=np.float32), r
+    #return im, r, (dw, dh)
 
 class ModelTrt(Model):
     def __init__(self, config):
@@ -16,6 +75,9 @@ class ModelTrt(Model):
         self.w = 0
         self.h = 0
 
+        self.mean = None
+        self.std = None
+        
         logger = trt.Logger(trt.Logger.WARNING)
         logger.min_severity = trt.Logger.Severity.ERROR
         runtime = trt.Runtime(logger)
@@ -61,16 +123,24 @@ class ModelTrt(Model):
 
     def predict(self, frame):
         super().predict(frame)
-        #img = np.ascontiguousarray(frame, dtype=np.float32)
-        resized = cv.resize(
-            frame,
-            (self.imgsz[1], self.imgsz[0]),
-            interpolation=cv.INTER_LINEAR,
-            ).astype(np.float32)
-        img = np.ascontiguousarray(resized, dtype=np.float32)
-        data = self._infer(img)
 
-        ratio = min(self.imgsz[0] / frame.shape[0], self.imgsz[1] / frame.shape[1])
+        with timing("preprocess"):
+            img, ratio = preproc(frame, self.imgsz, self.mean, self.std)
+            #img, ratio = letterbox(frame, self.imgsz)
+
+
+
+        #img = np.ascontiguousarray(frame, dtype=np.float32)
+        # resized = cv.resize(
+        #     frame,
+        #     (self.imgsz[1], self.imgsz[0]),
+        #     interpolation=cv.INTER_LINEAR,
+        #     ).astype(np.float32)
+        # img = np.ascontiguousarray(resized, dtype=np.float32)
+        with timing("inference"):
+            data = self._infer(img)
+
+        #ratio = min(self.imgsz[0] / frame.shape[0], self.imgsz[1] / frame.shape[1])
 
         num, final_boxes, final_scores, final_cls_inds = data
         final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
@@ -85,8 +155,24 @@ class ModelTrt(Model):
         #                 BBox(box.cls[0], x1, y1, x2, y2, self.w, self.h, box.conf[0])
         #             )
         if dets is not None:
-            final_boxes, final_scores, final_cls_inds = dets[:,:4], dets[:, 4], dets[:, 5]
-            print(final_boxes)
+            boxes, confidences, classes = dets[:,:4], dets[:, 4], dets[:, 5]
+            for i, box in enumerate(boxes):
+                if confidences[i] < self.config.confidence_min:
+                    continue
+                left, top, right, bottom = box[:4]
+                self.bboxes.add(
+                    BBox(
+                        classes[i],
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        self.w,
+                        self.h,
+                        confidences[i],
+                    )
+                )
+            #print(final_boxes)
 
     def _infer(self, img):
             self.inputs[0]['host'] = np.ravel(img)

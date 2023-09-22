@@ -47,7 +47,8 @@ async def grab(config, grabber: Grabber, model: models.Model) -> None:
 
         if config.show:
             frame_show = frame.copy()
-            frame_show = bboxes_truth.draw(frame_show)
+            if bboxes_truth:
+                frame_show = bboxes_truth.draw(frame_show)
             frame_show = bboxes_predicted.draw(frame_show)
             model.show(frame_show)
 

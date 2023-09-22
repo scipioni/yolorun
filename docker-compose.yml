@@ -61,7 +61,7 @@ services:
       - ./yolorun:/app/yolorun
       #- ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
-      - ./runtime/bash_history:/home/user/.bash_history
+      - ./runtime/bash_history_trt:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY
@@ -86,7 +86,7 @@ services:
       args:
         UID: ${UID}
         GID: ${GID}
-    #user: ${UID}
+    user: ${UID}
     volumes:
       - ${MODELS}:/models
       - ${DATASET}:/dataset
@@ -94,7 +94,7 @@ services:
       - ./yolorun:/app/yolorun
       #- ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
-      - ./runtime/bash_history:/home/user/.bash_history
+      - ./runtime/bash_history_ultra:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - DISPLAY

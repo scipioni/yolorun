@@ -1,0 +1,61 @@
+FROM ultralytics/ultralytics:latest
+
+ARG UID=1000
+ARG GID=1000
+
+ENV \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONHASHSEED=random \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  DEBIAN_FRONTEND=noninteractive \
+  LANG=C.UTF-8 \
+  LC_ALL=C.UTF-8
+
+# serve per cv2.imshow
+# RUN if [ "$ENV" = "development" ]; then \
+#   apt-get update && \
+#   apt-get install -y -q --no-install-recommends libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 && \
+#   rm -rf /var/lib/apt/lists/*; fi
+
+RUN pip install setuptools wheel pdm && \
+  pdm config python.use_venv false
+# RUN pdm config pypi.extra.url ${PYPI_URL}
+# RUN pdm config pypi.extra.username ${PYPI_USERNAME}
+# RUN pdm config pypi.extra.password ${PYPI_PASSWORD}
+
+
+# FROM pdm as ultralitycs
+
+# # fake opencv before ultralytics
+# WORKDIR /app
+# COPY ./opencv-python ./opencv-python
+# RUN pip install -e opencv-python && \
+#   pip install ultralytics
+
+# #FROM ultralitycs as tensorrt
+
+# # gcc-x86-64-linux-gnu g++
+# #RUN pip install nvidia-pyindex
+# #RUN pip install nvidia-tensorrt
+
+
+
+RUN groupadd --gid ${GID} user \
+    && useradd --uid ${UID} --gid ${GID} -m user
+
+
+WORKDIR /project
+COPY pyproject.toml pdm.lock README.md ./
+
+RUN pdm install --prod --no-lock --no-editable --no-isolation
+#RUN pdm install -G train --no-lock --no-editable --no-isolation
+
+WORKDIR /app
+COPY ./yolorun ./yolorun
+RUN mkdir -p /app/pkgs
+RUN bash -c "cp -a /project/__pypackages__/3*/* /app/pkgs"
+
+ENV PYTHONPATH=/app/pkgs/lib:/app:$PYTHONPATH
+ENV PATH=/app/pkgs/bin:$PATH

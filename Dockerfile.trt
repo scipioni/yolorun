@@ -25,7 +25,11 @@ ENV \
 RUN \
   apt-get update && \
   apt-get install -y -q --no-install-recommends \
-  libgl1-mesa-glx
+    xcb \ 
+    libglib2.0-0 \
+    libgl1-mesa-glx && \
+  apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/*
 #  build-essential 
 
 #RUN pip install opencv-python matplotlib
@@ -158,6 +162,7 @@ RUN pip install setuptools wheel pdm && \
 # #RUN pip install nvidia-tensorrt
 
 FROM pdm
+ENV QT_X11_NO_MITSHM=1
 ARG UID=1000
 ARG GID=1000
 
@@ -169,6 +174,7 @@ WORKDIR /project
 COPY pyproject.toml pdm.lock README.md ./
 
 RUN pdm install --prod --no-lock --no-editable --no-isolation
+#RUN pip install matplotlib # da togliere
 #RUN pdm install -G train --no-lock --no-editable --no-isolation
 
 WORKDIR /app

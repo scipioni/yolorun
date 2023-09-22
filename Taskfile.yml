@@ -28,10 +28,8 @@ tasks:
   ultra:
     cmds:
       - |
-        mkdir -p runtime && touch runtime/bash_history
-        xhost local:root
-        # export UID="$(id -u)" 
-        # export GID="$(id -g)"
+        mkdir -p runtime && touch runtime/bash_history_ultra
+        xhost +local:root
         docker compose run --rm ultra bash
 
 
@@ -42,10 +40,8 @@ tasks:
   trt:
     cmds:
       - |
-        mkdir -p runtime && touch runtime/bash_history
-        xhost local:root
-        # export UID="$(id -u)" 
-        # export GID="$(id -g)"
+        mkdir -p runtime && touch runtime/bash_history_trt
+        xhost +local:root
         docker compose run --rm trt bash
 
 
