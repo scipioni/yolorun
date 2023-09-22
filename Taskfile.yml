@@ -21,6 +21,20 @@ tasks:
       - xhost local:root
       - docker compose run --rm yolorun bash
 
+  ultra:build:
+    cmds:
+      - docker compose build ultra --progress=plain
+
+  ultra:
+    cmds:
+      - |
+        mkdir -p runtime && touch runtime/bash_history
+        xhost local:root
+        # export UID="$(id -u)" 
+        # export GID="$(id -g)"
+        docker compose run --rm ultra bash
+
+
   trt:build:
     cmds:
       - docker compose build trt --progress=plain

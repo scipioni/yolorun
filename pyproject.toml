@@ -25,10 +25,11 @@ build-backend = "pdm.backend"
 [project.scripts]
 yolorun = "yolorun.main:main"
 yolo2ls = "yolorun.yolo2ls:main"
-export-det = "yolorun.yolov8.export_det:main"
-export-seg = "yolorun.yolov8.export_seg:main"
-infer-det = "yolorun.yolov8.infer_det:run"
-infer-seg = "yolorun.yolov8.infer_seg:run"
+yolo2onnx = "yolorun.models.trt.export:run"
+#export-det = "yolorun.yolov8.export_det:main"
+#export-seg = "yolorun.yolov8.export_seg:main"
+#infer-det = "yolorun.yolov8.infer_det:run"
+#infer-seg = "yolorun.yolov8.infer_seg:run"
 
 [project.optional-dependencies]
 train = [

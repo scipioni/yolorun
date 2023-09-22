@@ -59,7 +59,7 @@ services:
       - ${DATASET}:/dataset
       - ./samples:/samples
       - ./yolorun:/app/yolorun
-      - ./opencv-build.sh:/build/opencv-build.sh
+      #- ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
       - ./runtime/bash_history:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
@@ -77,3 +77,35 @@ services:
           devices:
             - capabilities: [ gpu ]  
 
+  ultra:
+    image: yololab/ultra
+    build: 
+      context: .
+      dockerfile: Dockerfile.ultralitycs
+      #target: runtime
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    #user: ${UID}
+    volumes:
+      - ${MODELS}:/models
+      - ${DATASET}:/dataset
+      - ./samples:/samples
+      - ./yolorun:/app/yolorun
+      #- ./opencv-build.sh:/build/opencv-build.sh
+      - /etc/inputrc:/etc/inputrc:ro
+      - ./runtime/bash_history:/home/user/.bash_history
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+      - "/dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]  

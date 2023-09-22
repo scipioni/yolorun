@@ -72,7 +72,7 @@ def getModel(config):
                 from .onnx_dnn import ModelOnnxDnn
                 return ModelOnnxDnn(config)
     elif ".engine" in config.model:
-        from .trt import ModelTrt
+        from .trt.pycuda import ModelTrt
         return ModelTrt(config) 
     return ModelDummy(config)
 
