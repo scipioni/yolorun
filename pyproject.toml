@@ -7,14 +7,21 @@ authors = [
     {name = "Stefano Scipioni", email = "stefano.scipioni@csgalileo.net"},
 ]
 dependencies = [
-    "configargparse>=1.5.3",
-    "numpy>=1.25.2",
+    #"configargparse>=1.5.3",
+    #"numpy>=1.25.2",
+    #"imagesize>=1.4.1",
+    #"shared-ndarray2>=1.0.0.post0",
+    #"opencv-python>=4.8.0.76",
+    #    "configargparse>=0.14.0",
+    #"opencv-python>=4.7.0.68",
+    #"configargparse>=1.7",
     "imagesize>=1.4.1",
+    "configargparse>=1.7",
     "shared-ndarray2>=1.0.0.post0",
     "opencv-python>=4.8.0.76",
 ]
 
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "MIT"}
 
@@ -33,11 +40,14 @@ export-seg = "yolorun.yolov8.export_seg:main"
 
 [project.optional-dependencies]
 train = [
+    #"ultralytics>=8.0.184",
+    #"onnx>=1.14.1",
+    #"onnxsim>=0.4.33",
+    #"onnxruntime>=1.16.0",
     "ultralytics>=8.0.184",
-    "onnx>=1.14.1",
     "onnxsim>=0.4.33",
-    "onnxruntime>=1.16.0",
+    "onnxruntime-gpu>=1.16.0",
 ]
 onnx = [
-    "onnxruntime-gpu>=1.16.0",
+    #"onnxruntime-gpu>=1.16.0",
 ]

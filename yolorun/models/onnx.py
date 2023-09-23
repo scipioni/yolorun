@@ -17,7 +17,10 @@ import onnxruntime as ort
 class ModelOnnxRuntime(Model):
     def __init__(self, config):
         super().__init__(config)
-        self.session = ort.InferenceSession(config.model, providers=['TensorrtExecutionProvider'])
+        for provider in ort.get_available_providers():
+            print(provider)
+        self.session = ort.InferenceSession(config.model, providers=['TensorrtExecutionProvider','CUDAExecutionProvider'])
+        #onnx.checker.check_model(onnx_model)
         self.model_inputs = self.session.get_inputs()
 
         # Store the shape of the input for later use
@@ -129,7 +132,8 @@ class ModelOnnxRuntime(Model):
     def predict(self, frame):
         super().predict(frame)
         img_data = self.preprocess(frame)
-        outputs = self.session.run(None, {self.model_inputs[0].name: img_data})
+        with timing("inference"):
+            outputs = self.session.run(None, {self.model_inputs[0].name: img_data})
         indices, boxes, confidences, classIds = self.postprocess(outputs) 
 
 
