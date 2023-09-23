@@ -36,7 +36,7 @@ class ModelOnnxRuntime(Model):
 
     def preprocess(self, img):
         # Convert the image color space from BGR to RGB
-        img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
         # Resize the image to match the input shape
         img = cv.resize(img, self.size)
@@ -93,7 +93,7 @@ class ModelOnnxRuntime(Model):
             max_score = np.amax(classes_scores)
 
             # If the maximum score is above the confidence threshold
-            if max_score >= self.confidence_thres:
+            if max_score >= self.config.confidence_min:
                 # Get the class ID with the highest score
                 class_id = np.argmax(classes_scores)
 
@@ -112,7 +112,7 @@ class ModelOnnxRuntime(Model):
                 boxes.append([left, top, width, height])
 
         # Apply non-maximum suppression to filter out overlapping bounding boxes
-        indices = cv2.dnn.NMSBoxes(boxes, scores, self.confidence_thres, self.iou_thres)
+        indices = cv.dnn.NMSBoxes(boxes, scores, self.config.confidence_min, 0.5)
 
         # Iterate over the selected indices after non-maximum suppression
         for i in indices:
@@ -129,8 +129,8 @@ class ModelOnnxRuntime(Model):
     def predict(self, frame):
         super().predict(frame)
         img_data = self.preprocess(frame)
-        outputs = session.run(None, {self.model_inputs[0].name: img_data})
-        indices, boxes, confidences, classIds = self.postprocess(frame, outputs)  # output image
+        outputs = self.session.run(None, {self.model_inputs[0].name: img_data})
+        indices, boxes, confidences, classIds = self.postprocess(outputs) 
 
 
         for i in indices:

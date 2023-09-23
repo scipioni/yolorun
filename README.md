@@ -73,7 +73,7 @@ yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filt
 FUNZIONA: create onnx from *.pt 
 ```
 task ultra
-yolo export model=/models/yolov8n.pt format=onnx simplify=True
+yolo export model=/models/yolov8n.pt format=onnx simplify=True [opset=12]
 
 
 task trt
@@ -91,7 +91,7 @@ trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
 DA VERIFICARE
 ```
 task ultra
-yolo export model=/models/yolov8n.pt format=onnx simplify=True
+yolo export model=/models/yolov8n.pt format=onnx simplify=True 
 ```
 
 create engine from onnx (run on same GPU that has to make inference)

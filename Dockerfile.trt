@@ -39,15 +39,6 @@ RUN git clone --single-branch --branch ${ONNXRUNTIME_BRANCH} --recursive ${ONNXR
 #     cd ..
 
 
-# # serve per cv2.imshow
-# RUN \
-#   apt-get update && \
-#   apt-get install -y -q --no-install-recommends \
-#     xcb \ 
-#     libglib2.0-0 \
-#     libgl1-mesa-glx && \
-#   apt-get -y clean && \
-#     rm -rf /var/lib/apt/lists/*
 
 
 FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS pdm
@@ -97,3 +88,13 @@ RUN pip install /tmp/*.whl && rm -f /tmp/*whl
 
 ENV PYTHONPATH=/app/pkgs/lib:/app:$PYTHONPATH
 ENV PATH=/app/pkgs/bin:$PATH
+
+# serve per cv2.imshow
+RUN \
+  apt-get update && \
+  apt-get install -y -q --no-install-recommends \
+    xcb \ 
+    libglib2.0-0 \
+    libgl1-mesa-glx && \
+  apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/*
