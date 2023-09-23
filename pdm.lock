@@ -2,11 +2,11 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "train"]
+groups = ["default", "train", "onnx"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:285b0d102d552b78bde78bc49c6cbdd2178eec35b32487fdcf60f263b2490c09"
+content_hash = "sha256:0a79b77bf6c5b1b415241139c849a4857d907f48745034adb4d3ef003ed2e57f"
 
 [[package]]
 name = "certifi"
@@ -764,6 +764,27 @@ files = [
     {file = "onnxruntime-1.16.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f533aa90ee7189e88b6b612d6adae7d290971090598cfd47ce034ab0d106fc9c"},
     {file = "onnxruntime-1.16.0-cp39-cp39-win32.whl", hash = "sha256:306c7f5d8a0c24c65afb34f7deb0bc526defde2249e53538f1dce083945a2d6e"},
     {file = "onnxruntime-1.16.0-cp39-cp39-win_amd64.whl", hash = "sha256:df8a00a7b057ba497e2822175cc68731d84b89a6d50a3a2a3ec51e98e9c91125"},
+]
+
+[[package]]
+name = "onnxruntime-gpu"
+version = "1.16.0"
+summary = "ONNX Runtime is a runtime accelerator for Machine Learning models"
+dependencies = [
+    "coloredlogs",
+    "flatbuffers",
+    "numpy>=1.24.2",
+    "packaging",
+    "protobuf",
+    "sympy",
+]
+files = [
+    {file = "onnxruntime_gpu-1.16.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ecd816069373c94a9c2d9554932328f17da9b76b3de8ce13c24d96ddd91f02db"},
+    {file = "onnxruntime_gpu-1.16.0-cp310-cp310-win_amd64.whl", hash = "sha256:0913940593442fb92aac385ddca3b712c452a4e967d7f3aa61bfa9c2ec7502af"},
+    {file = "onnxruntime_gpu-1.16.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ea44d83424f5b03a4d0cc76b573047b8f20cdcdfe28b978746c9d76a352e75e2"},
+    {file = "onnxruntime_gpu-1.16.0-cp311-cp311-win_amd64.whl", hash = "sha256:ce97adba93c265eda50873f7fabe654429efbee1e765232afd3aca129d3d92e6"},
+    {file = "onnxruntime_gpu-1.16.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8987821c5d0d7c4052d4322a846ba6e6a8665863e2217a090b7ad5a24c89f08d"},
+    {file = "onnxruntime_gpu-1.16.0-cp39-cp39-win_amd64.whl", hash = "sha256:a17da3412fcda22b7ef26be4c684b6f9fe3bb79d7437fa3b386ef2af4c5f1ec3"},
 ]
 
 [[package]]

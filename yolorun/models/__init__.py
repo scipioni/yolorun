@@ -65,12 +65,14 @@ def getModel(config):
             from .yoloseg_gorordo import ModelOnnxSeg
             return ModelOnnxSeg(config)
         else:
-            if config.dnn:
-                from .dnn import ModelDnn
-                return ModelDnn(config)
-            else:
-                from .onnx_dnn import ModelOnnxDnn
-                return ModelOnnxDnn(config)
+            from .onnx import ModelOnnxRuntime
+            return ModelOnnxRuntime(config)
+            # if config.dnn:
+            #     from .dnn import ModelDnn
+            #     return ModelDnn(config)
+            # else:
+            #     from .onnx_dnn import ModelOnnxDnn
+            #     return ModelOnnxDnn(config)
     elif ".engine" in config.model:
         from .trt.pycuda import ModelTrt
         return ModelTrt(config) 

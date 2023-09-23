@@ -46,6 +46,7 @@ services:
       args:
         UID: ${UID}
         GID: ${GID}
+        CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}
       #   PYTHON_VERSION: 3.10
       #   CUDA_VERSION: 11.5.2
       #   UBUNTU_VERSION: 20.04

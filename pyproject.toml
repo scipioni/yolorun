@@ -38,3 +38,6 @@ train = [
     "onnxsim>=0.4.33",
     "onnxruntime>=1.16.0",
 ]
+onnx = [
+    "onnxruntime-gpu>=1.16.0",
+]
