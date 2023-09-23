@@ -34,6 +34,19 @@ def preproc(image, input_size, mean, std, swap=(2, 0, 1)):
     padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
     return padded_img, r
 
+def preproc_fast(image, input_size, swap=(2, 0, 1)):
+    padded_img = cv.resize(
+        image,
+        input_size,
+        interpolation=cv.INTER_LINEAR,
+    ).astype(np.float32)
+    #padded_img = padded_img[:, :, ::-1]
+    padded_img /= 255.0
+    padded_img = padded_img.transpose(swap)
+    padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
+    r = (input_size[0] / image.shape[0], input_size[1] / image.shape[1])
+    return padded_img, r
+
 def letterbox(im: ndarray,
               new_shape: Union[Tuple, List] = (640, 640),
               color: Union[Tuple, List] = (114, 114, 114)) \
@@ -125,10 +138,9 @@ class ModelTrt(Model):
         super().predict(frame)
 
         with timing("preprocess"):
-            img, ratio = preproc(frame, self.imgsz, self.mean, self.std)
+            #img, ratio = preproc(frame, self.imgsz, self.mean, self.std)
+            img, ratio = preproc_fast(frame, self.imgsz)
             #img, ratio = letterbox(frame, self.imgsz)
-
-
 
         #img = np.ascontiguousarray(frame, dtype=np.float32)
         # resized = cv.resize(
@@ -143,7 +155,8 @@ class ModelTrt(Model):
         #ratio = min(self.imgsz[0] / frame.shape[0], self.imgsz[1] / frame.shape[1])
 
         num, final_boxes, final_scores, final_cls_inds = data
-        final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
+        #final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
+        final_boxes = np.reshape(final_boxes, (-1, 4))
         dets = np.concatenate([final_boxes[:num[0]], np.array(final_scores)[:num[0]].reshape(-1, 1), np.array(final_cls_inds)[:num[0]].reshape(-1, 1)], axis=-1)
         # self.h, self.w = frame.shape[:2]
         # results = self.net.predict(self.frame, imgsz=self.size, conf=self.config.confidence_min, verbose=False, stream=True)
@@ -163,10 +176,10 @@ class ModelTrt(Model):
                 self.bboxes.add(
                     BBox(
                         classes[i],
-                        left,
-                        top,
-                        right,
-                        bottom,
+                        left / ratio[1],
+                        top / ratio[0],
+                        right / ratio[1],
+                        bottom / ratio[0],
                         self.w,
                         self.h,
                         confidences[i],
