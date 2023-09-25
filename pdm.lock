@@ -6,7 +6,7 @@ groups = ["default", "train", "onnx"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:f4dc7dbd0819429ed9cfb759f7d3b5fbf3d4528207e63f0318de35def80d7e77"
+content_hash = "sha256:d39544f26d7709b846c1f86b4976d645929899fb7c50db1fc97f955111795b4d"
 
 [[package]]
 name = "certifi"

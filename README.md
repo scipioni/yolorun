@@ -2,6 +2,13 @@
 
 testing about yolo inference
 
+## GPU
+
+check capabilities with
+```
+nvidia-smi --query-gpu=compute_cap --format=csv
+```
+
 
 ## build
 

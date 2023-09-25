@@ -6,39 +6,50 @@
 # nVidia TensorRT Base Image
 #ARG TRT_CONTAINER_VERSION=22.12
 # with cuda 11.8 compatible with tensorrt
-ARG VERSION=22.12
-FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS builder
+#ARG VERSION=22.12
+ARG VERSION=23.08
+FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS tensorrt
 
 ARG ONNXRUNTIME_REPO=https://github.com/Microsoft/onnxruntime
 ARG ONNXRUNTIME_BRANCH=main
 # check with: nvidia-smi --query-gpu=compute_cap --format=csv
 ARG CMAKE_CUDA_ARCHITECTURES=37;50;52;60;61;70;75;80  
-
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update &&\
     apt-get install -y sudo git bash 
-#unattended-upgrades
-#RUN unattended-upgrade
 
 WORKDIR /code
 ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-
-# # Prepare onnxruntime repository & build onnxruntime with TensorRT
 RUN pip install cmake packaging setuptools wheel
 RUN git clone --single-branch --branch ${ONNXRUNTIME_BRANCH} --recursive ${ONNXRUNTIME_REPO} onnxruntime &&\
   cd onnxruntime &&\
   ./build.sh --allow_running_as_root --parallel --build_shared_lib --use_cuda --cuda_home /usr/local/cuda --cudnn_home /usr/lib/x86_64-linux-gnu/ \
     --use_tensorrt --tensorrt_home /usr/lib/x86_64-linux-gnu/ --config Release \
     --build_wheel --skip_tests --skip_submodule_sync --cmake_extra_defines '"CMAKE_CUDA_ARCHITECTURES='${CMAKE_CUDA_ARCHITECTURES}'"' 
-#     pip install /code/onnxruntime/build/Linux/Release/dist/*.whl
 
-#     /bin/sh onnxruntime/dockerfiles/scripts/install_common_deps.sh &&\
-#     trt_version=${TRT_VERSION:0:3} &&\
-#     /bin/sh onnxruntime/dockerfiles/scripts/checkout_submodules.sh ${trt_version} &&\
-#     cd onnxruntime &&\
-#     /bin/sh build.sh --allow_running_as_root --parallel --build_shared_lib --cuda_home /usr/local/cuda --cudnn_home /usr/lib/x86_64-linux-gnu/ --use_tensorrt --tensorrt_home /usr/lib/x86_64-linux-gnu/ --config Release --build_wheel --skip_tests --skip_submodule_sync --cmake_extra_defines '"CMAKE_CUDA_ARCHITECTURES='${CMAKE_CUDA_ARCHITECTURES}'"' &&\
-#     pip install /code/onnxruntime/build/Linux/Release/dist/*.whl &&\
-#     cd ..
 
+FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS opencv
+ARG OPENCV_VERSION=4.x
+ARG PYTHON_VERSION=3.10
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN \
+  apt-get -y update && \
+  apt-get install -y -q --no-install-recommends \
+  wget \
+  curl \
+  libgtk2.0-dev \
+  libgstreamer1.0-dev \
+  build-essential \
+  libgstreamer-plugins-base1.0-dev \
+  pkg-config \
+  cmake
+
+WORKDIR /build
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
+COPY opencv-build.sh .
+RUN ./opencv-build.sh ${OPENCV_VERSION} ${PYTHON_VERSION}
 
 
 
@@ -69,6 +80,9 @@ ARG GID=1000
 RUN groupadd --gid ${GID} user \
     && useradd --uid ${UID} --gid ${GID} -m user
 
+COPY --from=opencv /build/release/lib/ /usr/local/lib/
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+RUN ldconfig
 
 WORKDIR /project
 COPY pyproject.toml pdm.lock README.md ./
@@ -84,19 +98,35 @@ COPY ./yolorun ./yolorun
 RUN mkdir -p /app/pkgs
 RUN bash -c "cp -a /project/__pypackages__/3*/* /app/pkgs"
 
-COPY --from=builder /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
-RUN pip install /tmp/*.whl && rm -f /tmp/*whl
+# COPY --from=builder /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
+# RUN pip install /tmp/*.whl && rm -f /tmp/*whl
 
 
 ENV PYTHONPATH=/app/pkgs/lib:/app:$PYTHONPATH
 ENV PATH=/app/pkgs/bin:$PATH
 
 # serve per cv2.imshow
+# RUN \
+#   apt-get update && \
+#   apt-get install -y -q --no-install-recommends \
+#     xcb \ 
+#     libglib2.0-0 \
+#     libgl1-mesa-glx && \
+#   apt-get -y clean && \
+#     rm -rf /var/lib/apt/lists/*
+
+# serve per cv2.imshow
 RUN \
-  apt-get update && \
-  apt-get install -y -q --no-install-recommends \
-    xcb \ 
-    libglib2.0-0 \
-    libgl1-mesa-glx && \
-  apt-get -y clean && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get update && apt-get install -y -q --no-install-recommends \
+  gstreamer1.0-plugins-base \
+  gstreamer1.0-plugins-good \
+  gstreamer1.0-libav \
+  gstreamer1.0-tools \
+  gstreamer1.0-x \
+  libgtk2.0-0 \
+  libcanberra-gtk-module && \
+  rm -rf /var/lib/apt/lists/*
+# RUN \
+#   apt-get update && \
+#   apt-get install -y -q --no-install-recommends libgtk2.0-0 libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 && \
+#   rm -rf /var/lib/apt/lists/*

@@ -11,16 +11,16 @@ class ModelDarknet(Model):
             config.weights = config.model.replace(".cfg", ".weights")
 
         _net = cv.dnn.readNet(config.model, config.weights)
+        self.channels = _net.getParam(_net.getLayerNames()[0]).shape[1]
 
         self.net = cv.dnn_DetectionModel(_net)
         self.net.setInputParams(
             size=self.size,
             mean=(0, 0, 0),
             scale=1.0 / 255.0,
-            swapRB=True,
+            swapRB=self.channels > 1,
             crop=config.crop,
         )
-        self.channels = _net.getParam(_net.getLayerNames()[0]).shape[1]
         self.gflops = (
             _net.getFLOPS((1, self.channels, self.size[0], self.size[1])) * 1e-9
         )
@@ -49,6 +49,8 @@ class ModelDarknet(Model):
 
         confThreshold = 0.1
         nmsThreshold = 0.4
+
+        #frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
         with timing("cv.dnn.detect"):
             classIds, confidences, boxes = self.net.detect(

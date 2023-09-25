@@ -54,7 +54,7 @@ services:
 
       #target: pdm
     #command: "process_cv"
-    user: ${UID}
+    #user: ${UID}
     volumes:
       - ${MODELS}:/models
       - ${DATASET}:/dataset
