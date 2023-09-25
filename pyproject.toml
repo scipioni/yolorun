@@ -7,14 +7,7 @@ authors = [
     {name = "Stefano Scipioni", email = "stefano.scipioni@csgalileo.net"},
 ]
 dependencies = [
-    #"configargparse>=1.5.3",
-    #"numpy>=1.25.2",
-    #"imagesize>=1.4.1",
-    #"shared-ndarray2>=1.0.0.post0",
     #"opencv-python>=4.8.0.76",
-    #    "configargparse>=0.14.0",
-    #"opencv-python>=4.7.0.68",
-    #"configargparse>=1.7",
     "imagesize>=1.4.1",
     "configargparse>=1.7",
     "shared-ndarray2>=1.0.0.post0",
@@ -31,9 +24,11 @@ build-backend = "pdm.backend"
 [project.scripts]
 yolorun = "yolorun.main:main"
 yolo2ls = "yolorun.yolo2ls:main"
-#yolo2onnx = "yolorun.yolo2onnx:main"
+### new yolov8 tensorrt
 export-det = "yolorun.models.trt.export:run"
-export-seg = "yolorun.yolov8.export_seg:main"
+export-seg = "yolorun.models.trt.export_seg:run"
+### old yolov8 tensorrt
+#export-seg = "yolorun.yolov8.export_seg:main"
 #infer-det = "yolorun.yolov8.infer_det:run"
 #infer-seg = "yolorun.yolov8.infer_seg:run"
 

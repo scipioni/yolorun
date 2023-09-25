@@ -297,6 +297,8 @@ def run():
                         help="use yolov8 model, default: True")
     args = parser.parse_args()
     print(args)
+    if not args.engine:
+        args.engine = args.onnx.replace(".onnx", ".engine")    
     if not all([args.onnx, args.engine]):
         parser.print_help()
         log.error("These arguments are required: --onnx and --engine")

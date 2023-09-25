@@ -8,7 +8,7 @@
 # with cuda 11.8 compatible with tensorrt
 #ARG VERSION=22.12
 ARG VERSION=23.08
-FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS tensorrt
+FROM nvcr.io/nvidia/tensorrt:${VERSION}-py3 AS onnxruntime
 
 ARG ONNXRUNTIME_REPO=https://github.com/Microsoft/onnxruntime
 ARG ONNXRUNTIME_BRANCH=main
@@ -98,8 +98,9 @@ COPY ./yolorun ./yolorun
 RUN mkdir -p /app/pkgs
 RUN bash -c "cp -a /project/__pypackages__/3*/* /app/pkgs"
 
-# COPY --from=builder /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
-# RUN pip install /tmp/*.whl && rm -f /tmp/*whl
+## enable onnruntime
+COPY --from=onnxruntime /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
+RUN pip install /tmp/*.whl && rm -f /tmp/*whl
 
 
 ENV PYTHONPATH=/app/pkgs/lib:/app:$PYTHONPATH

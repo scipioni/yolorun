@@ -75,8 +75,12 @@ def getModel(config):
                 # from .onnx_dnn import ModelOnnxDnn
                 # return ModelOnnxDnn(config)
     elif ".engine" in config.model:
-        from .trt.pycuda import ModelTrt
-        return ModelTrt(config) 
+        if "-seg" in config.model:
+            from .trt.segmentation import ModelTrtSegmentation
+            return ModelTrtSegmentation(config)             
+        else:
+            from .trt.detection import ModelTrt
+            return ModelTrt(config) 
     return ModelDummy(config)
 
     log.error("no model for %s", config.model)

@@ -79,19 +79,27 @@ yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filt
 ```
 
 
-## tensorrt working in progress
+## tensorrt 
 
 
-FUNZIONA: create onnx from *.pt 
+### detection
+
+
+create onnx from *.pt 
 ```
 task ultra
 yolo export model=/models/yolov8n.pt format=onnx simplify=True imgsz=416 [opset=12] [half=True] [dynamic=True]
+```
 
-
+create *.engine from *.onnx
+```
 task trt
-#cd /app/yolorun/experiments/TensorRT-For-YOLO-Series
-export-det -o /models/yolov8n.onnx -e /models/yolov8n.engine --end2end --v8
-#python trt.py -e /models/yolov8n.engine --end2end -i /samples/0a0a00b2fbe89a47.jpg -o /samples/out.jpg
+export-det -o /models/yolov8n.onnx --end2end --v8
+```
+
+inference with trt/pycuda
+```
+task trtll
 yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 
 
@@ -100,23 +108,20 @@ yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 ```
 
 
-DA VERIFICARE
+### segmentation
+
+create onnx from *.pt
 ```
-task ultra
-yolo export model=/models/yolov8n.pt format=onnx simplify=True 
+yolo export model=/models/yolov8n-seg.pt format=onnx  imgsz=416 simplify=True [opset=12] [simplify=True]
 ```
 
-create engine from onnx (run on same GPU that has to make inference)
+create *.engine from *.onnx
 ```
 task trt
-trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
+export-seg -o /models/yolov8n-seg.onnx 
 ```
-
-inference
+inference with trt/pycuda
 ```
-task trt
-yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
+task trtll
+yolorun --model /models/yolov8n-seg.engine --show --step /samples/*jpg
 ```
-
-
-
