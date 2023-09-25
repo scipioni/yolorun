@@ -14,7 +14,7 @@ class ModelDnn(Model):
             size=self.size,
             mean=(0, 0, 0),
             scale=1.0 / 255.0,
-            swapRB=True,
+            swapRB=self.channels > 1,
             crop=config.crop,
         )
         self.channels = _net.getParam(_net.getLayerNames()[0]).shape[1]

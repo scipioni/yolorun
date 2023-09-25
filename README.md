@@ -80,7 +80,7 @@ yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filt
 FUNZIONA: create onnx from *.pt 
 ```
 task ultra
-yolo export model=/models/yolov8n.pt format=onnx simplify=True [opset=12]
+yolo export model=/models/yolov8n.pt format=onnx simplify=True imgsz=416,320 [opset=12] [half=True] [dynamic=True]
 
 
 task trt

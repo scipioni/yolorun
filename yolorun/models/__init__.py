@@ -21,6 +21,7 @@ class Model:
         self.bboxes = BBoxes(truth=False, segmentation=self.segmentation)
         self.w = 0
         self.h = 0
+        self.gflops = 0
 
     def predict(self, frame):
         self.bboxes.reset()
@@ -65,14 +66,14 @@ def getModel(config):
             from .yoloseg_gorordo import ModelOnnxSeg
             return ModelOnnxSeg(config)
         else:
-            from .onnx import ModelOnnxRuntime
-            return ModelOnnxRuntime(config)
-            # if config.dnn:
-            #     from .dnn import ModelDnn
-            #     return ModelDnn(config)
-            # else:
-            #     from .onnx_dnn import ModelOnnxDnn
-            #     return ModelOnnxDnn(config)
+            if config.dnn:
+                from .dnn import ModelDnn
+                return ModelDnn(config)
+            else:
+                from .onnx import ModelOnnxRuntime
+                return ModelOnnxRuntime(config)
+                # from .onnx_dnn import ModelOnnxDnn
+                # return ModelOnnxDnn(config)
     elif ".engine" in config.model:
         from .trt.pycuda import ModelTrt
         return ModelTrt(config) 
