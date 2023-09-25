@@ -12,6 +12,8 @@ class ModelDarknet(Model):
 
         _net = cv.dnn.readNet(config.model, config.weights)
         self.channels = _net.getParam(_net.getLayerNames()[0]).shape[1]
+        # for layer in _net.getLayerNames():
+        #     print(layer, _net.getParam(_net.getLayerNames()[0]).shape)
 
         self.net = cv.dnn_DetectionModel(_net)
         self.net.setInputParams(

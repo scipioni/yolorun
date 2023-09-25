@@ -117,12 +117,14 @@ class DummyGrabber(Grabber):
 
     def __init__(self, config):
         super().__init__(config)
+        self._image = np.random.randint(255, size=(1024, 1024, 3), dtype=np.uint8)
 
     async def get(self, key=None):
         (do_continue, buff, _) = super().get(key=key)
         if not do_continue:
             return (None, "", [])
-        return (np.zeros((1024, 1024, 3), np.uint8), self.counter, [])
+        return (self._image.copy(), self.counter, [])
+        #return (np.zeros((1024, 1024, 3), np.uint8), self.counter, [])
 
 
 class WebcamGrabber(Grabber):

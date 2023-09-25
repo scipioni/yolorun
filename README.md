@@ -1,6 +1,11 @@
 # yolorun
 
-testing about yolo inference
+testing about yolo inference: ```yolorun -m <model> --size 416```
+
+| 416x416 | darknet yolov3 supertiny with cv.dnn  | yolov8n with ultralitycs | yolov8n with nms in trt/pycuda |  |
+|---|---|---|---|---|
+| quadro 4000 | 260fps inference 3.2ms | 114fps | 191fps inference 2.7ms |  |
+|  |  |  |  |  |
 
 ## GPU
 
@@ -80,7 +85,7 @@ yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filt
 FUNZIONA: create onnx from *.pt 
 ```
 task ultra
-yolo export model=/models/yolov8n.pt format=onnx simplify=True imgsz=416,320 [opset=12] [half=True] [dynamic=True]
+yolo export model=/models/yolov8n.pt format=onnx simplify=True imgsz=416 [opset=12] [half=True] [dynamic=True]
 
 
 task trt
@@ -91,7 +96,7 @@ yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 
 
 # non funziona
-trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
+# trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
 ```
 
 
@@ -112,4 +117,6 @@ inference
 task trt
 yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 ```
+
+
 

@@ -154,37 +154,38 @@ class ModelTrt(Model):
 
         #ratio = min(self.imgsz[0] / frame.shape[0], self.imgsz[1] / frame.shape[1])
 
-        num, final_boxes, final_scores, final_cls_inds = data
-        #final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
-        final_boxes = np.reshape(final_boxes, (-1, 4))
-        dets = np.concatenate([final_boxes[:num[0]], np.array(final_scores)[:num[0]].reshape(-1, 1), np.array(final_cls_inds)[:num[0]].reshape(-1, 1)], axis=-1)
-        # self.h, self.w = frame.shape[:2]
-        # results = self.net.predict(self.frame, imgsz=self.size, conf=self.config.confidence_min, verbose=False, stream=True)
-        # for result in results:
-        #     for box in result.boxes.cpu().numpy():
-        #         if box.conf[0] > self.config.confidence_min:
-        #             x1, y1, x2, y2 = box.xyxy[0].astype(int)[:4]
-        #             self.bboxes.add(
-        #                 BBox(box.cls[0], x1, y1, x2, y2, self.w, self.h, box.conf[0])
-        #             )
-        if dets is not None:
-            boxes, confidences, classes = dets[:,:4], dets[:, 4], dets[:, 5]
-            for i, box in enumerate(boxes):
-                if confidences[i] < self.config.confidence_min:
-                    continue
-                left, top, right, bottom = box[:4]
-                self.bboxes.add(
-                    BBox(
-                        classes[i],
-                        left / ratio[1],
-                        top / ratio[0],
-                        right / ratio[1],
-                        bottom / ratio[0],
-                        self.w,
-                        self.h,
-                        confidences[i],
+        with timing("postprocess"):
+            num, final_boxes, final_scores, final_cls_inds = data
+            #final_boxes = np.reshape(final_boxes/ratio, (-1, 4))
+            final_boxes = np.reshape(final_boxes, (-1, 4))
+            dets = np.concatenate([final_boxes[:num[0]], np.array(final_scores)[:num[0]].reshape(-1, 1), np.array(final_cls_inds)[:num[0]].reshape(-1, 1)], axis=-1)
+            # self.h, self.w = frame.shape[:2]
+            # results = self.net.predict(self.frame, imgsz=self.size, conf=self.config.confidence_min, verbose=False, stream=True)
+            # for result in results:
+            #     for box in result.boxes.cpu().numpy():
+            #         if box.conf[0] > self.config.confidence_min:
+            #             x1, y1, x2, y2 = box.xyxy[0].astype(int)[:4]
+            #             self.bboxes.add(
+            #                 BBox(box.cls[0], x1, y1, x2, y2, self.w, self.h, box.conf[0])
+            #             )
+            if dets is not None:
+                boxes, confidences, classes = dets[:,:4], dets[:, 4], dets[:, 5]
+                for i, box in enumerate(boxes):
+                    if confidences[i] < self.config.confidence_min:
+                        continue
+                    left, top, right, bottom = box[:4]
+                    self.bboxes.add(
+                        BBox(
+                            classes[i],
+                            left / ratio[1],
+                            top / ratio[0],
+                            right / ratio[1],
+                            bottom / ratio[0],
+                            self.w,
+                            self.h,
+                            confidences[i],
+                        )
                     )
-                )
             #print(final_boxes)
 
     def _infer(self, img):
