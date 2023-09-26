@@ -5,7 +5,7 @@ testing about yolo inference: ```yolorun -m <model> --size 416```
 | 416x416 | darknet yolov3 supertiny with cv.dnn  | yolov8n with ultralitycs | yolov8n with nms in trt/pycuda |  |
 |---|---|---|---|---|
 | quadro 4000 | 260fps inference 3.2ms | 114fps | 191fps inference 2.7ms |  |
-|  |  |  |  |  |
+| RTX 3060 | 290fps inference 3.3ms |  |  |  |
 
 ## GPU
 
@@ -78,6 +78,11 @@ find ./train -name "*txt" | xargs -n1 sed -i 's/^0/80/; s/^1/81/; s/^2/57/; s/^3
 yolorun --model models/yolov8x.pt /archive/dataset/fp/train/sofabed/*jpg  --filter-classes 0,56,57,59,60 --save /archive/dataset/fp/sofabed.autolabel
 ```
 
+rtsp on thermal camera
+```
+IP=10.1.8.171
+yolorun -m /models/fp.engine --show rtsp://$IP:554/cam/realmonitor?channel=2&subtype=0&unicast=true&proto=Onvif
+```
 
 ## tensorrt 
 
