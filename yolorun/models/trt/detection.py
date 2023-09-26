@@ -189,19 +189,19 @@ class ModelTrt(Model):
             #print(final_boxes)
 
     def _infer(self, img):
-            self.inputs[0]['host'] = np.ravel(img)
-            # transfer data to the gpu
-            for inp in self.inputs:
-                cuda.memcpy_htod_async(inp['device'], inp['host'], self.stream)
-            # run inference
-            self.context.execute_async_v2(
-                bindings=self.bindings,
-                stream_handle=self.stream.handle)
-            # fetch outputs from gpu
-            for out in self.outputs:
-                cuda.memcpy_dtoh_async(out['host'], out['device'], self.stream)
-            # synchronize stream
-            self.stream.synchronize()
+        self.inputs[0]['host'] = np.ravel(img)
+        # transfer data to the gpu
+        for inp in self.inputs:
+            cuda.memcpy_htod_async(inp['device'], inp['host'], self.stream)
+        # run inference
+        self.context.execute_async_v2(
+            bindings=self.bindings,
+            stream_handle=self.stream.handle)
+        # fetch outputs from gpu
+        for out in self.outputs:
+            cuda.memcpy_dtoh_async(out['host'], out['device'], self.stream)
+        # synchronize stream
+        self.stream.synchronize()
 
-            data = [out['host'] for out in self.outputs]
-            return data
+        data = [out['host'] for out in self.outputs]
+        return data

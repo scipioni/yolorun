@@ -117,13 +117,19 @@ class DummyGrabber(Grabber):
 
     def __init__(self, config):
         super().__init__(config)
-        self._image = np.random.randint(255, size=(1024, 1024, 3), dtype=np.uint8)
+        self._image = self._get_random()
+
+    def _get_random(self):
+        return np.random.randint(255, size=(1024, 1024, 3), dtype=np.uint8)
 
     async def get(self, key=None):
         (do_continue, buff, _) = super().get(key=key)
         if not do_continue:
             return (None, "", [])
-        return (self._image.copy(), self.counter, [])
+        if self.config.show:
+            return (self._image, self.counter, [])
+        else:
+            return (self._image, self.counter, [])
         #return (np.zeros((1024, 1024, 3), np.uint8), self.counter, [])
 
 
