@@ -22,6 +22,7 @@ class Model:
         self.w = 0
         self.h = 0
         self.gflops = 0
+        self.channels = 3
 
     def predict(self, frame):
         self.bboxes.reset()

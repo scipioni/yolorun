@@ -104,7 +104,6 @@ export-det -o /models/yolov8n.onnx --end2end --v8
 
 inference with trt/pycuda
 ```
-task trtll
 yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 
 
@@ -127,6 +126,24 @@ export-seg -o /models/yolov8n-seg.onnx
 ```
 inference with trt/pycuda
 ```
-task trtll
+task trt
 yolorun --model /models/yolov8n-seg.engine --show --step /samples/*jpg
 ```
+
+
+## Taotoolkit Segmentation Model Training and Deployment
+
+1) TaoToolkit:
+- https://docs.nvidia.com/tao/tao-toolkit/text/tao_toolkit_quick_start_guide.html#running-tao-toolkit
+- [Sample Workflows](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/tao/resources/cv_samples)
+
+2) Dataset:
+- https://docs.nvidia.com/tao/tao-toolkit/text/data_annotation_format.html#semantic-segmentation-format
+- https://docs.nvidia.com/tao/tao-toolkit/text/semantic_segmentation/segformer.html#dataset-config-segformer
+
+3) Training:
+- https://docs.nvidia.com/tao/tao-toolkit/text/semantic_segmentation/segformer.html
+
+4) Deploy:
+- [To TensorRT](https://docs.nvidia.com/tao/tao-toolkit/text/tao_deploy/segformer.html)
+- [To Deepstream](https://docs.nvidia.com/tao/tao-toolkit/text/ds_tao/segformer_ds.html#deploying-to-deepstream-segformer)
