@@ -3,9 +3,12 @@ import time
 import cv2
 import numpy as np
 import onnxruntime
+import logging
 
 from .__init__ import Model
 from yolorun.lib.grabber import BBoxes, BBox
+
+log = logging.getLogger(__name__)
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -340,39 +343,100 @@ class YOLOSeg:
 
 
 class ModelOnnxSeg(Model):
+    """
+    input_yolov8-seg:
+        NodeArg(name='images', type='tensor(float)', shape=[1, 3, 640, 640])
+    output_yolov8-seg:
+        NodeArg(name='output0', type='tensor(float)', shape=[1, 116, 8400])
+        NodeArg(name='output1', type='tensor(float)', shape=[1, 32, 160, 160])
+
+
+    input_nms:
+        NodeArg(name='detection', type='tensor(float)', shape=[1, None, None])
+        NodeArg(name='config', type='tensor(float)', shape=[4])
+    output_nms:
+        NodeArg(name='selected', type='tensor(float)', shape=[1, 'unk__4', 'unk__1'])
+    
+    """
+
     segmentation = True
 
     def __init__(self, config):
         super().__init__(config)
 
-        self.yoloseg = YOLOSeg(config.model, conf_thres=0.5, iou_thres=0.3)
-        #self.masks = []
-
+        self.yoloseg = YOLOSeg(config.model, conf_thres=0.5, iou_thres=0.7)
+        if self.config.model_nms:
+            log.info("loading nms model %s", self.config.model_nms)
+            self.session_nms = onnxruntime.InferenceSession(self.config.model_nms,
+                                                    providers=['CUDAExecutionProvider',
+                                                            'CPUExecutionProvider'])
+            self.config_nms = np.array([
+                80, # numclasses
+                100, # topk
+                0.7, # iou_thresh
+                0.5, # score_thresh
+            ]).astype(np.float32)
 
     def predict(self, frame):
         super().predict(frame)
-        boxes, scores, class_ids, masks = self.yoloseg(frame)
 
-        for i, box in enumerate(boxes):
-            left, top, right, bottom = box
-            if scores[i] < self.config.confidence_min:
-                continue
+        if self.config.model_nms:
+            self._predict_with_nms(frame)
+        else:
+            boxes, scores, class_ids, masks = self.yoloseg(frame)
 
-            self.bboxes.add(
-                BBox(
-                    class_ids[i],
-                    left,
-                    top,
-                    right,
-                    bottom,
-                    self.w,
-                    self.h,
-                    scores[i],
-                    mask=masks[i]
+            for i, box in enumerate(boxes):
+                left, top, right, bottom = box
+                if scores[i] < self.config.confidence_min:
+                    continue
+
+                self.bboxes.add(
+                    BBox(
+                        class_ids[i],
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        self.w,
+                        self.h,
+                        scores[i],
+                        mask=masks[i]
+                    )
                 )
-            )
 
         #combined_img = yoloseg.draw_masks(img)
+
+    def _predict_with_nms(self, frame):
+        """
+        https://github.com/Hyuto/yolov8-seg-onnxruntime-web/blob/master/src/utils/detect.js#L45
+
+        const { output0, output1 } = await session.net.run({ images: tensor }); // run session and get output layer. out1: detect layer, out2: seg layer
+        const { selected } = await session.nms.run({ detection: output0, config: config }); // perform nms and filter boxes
+        
+        
+        const config = new Tensor(
+            "float32",
+            new Float32Array([
+            numClass, // num class
+            topk, // topk per class
+            iouThreshold, // iou threshold
+            scoreThreshold, // score threshold
+            ])
+        ); // nms config tensor
+        
+        
+        """
+        input_tensor = self.yoloseg.prepare_input(frame)
+
+        output0, output1 = self.yoloseg.session.run(self.yoloseg.output_names, {self.yoloseg.input_names[0]: input_tensor})
+
+        selected = self.session_nms.run(["selected"], {"detection": output0, "config": self.config_nms})
+        
+        selected = np.array(selected)
+        print(selected.shape)
+        for i in range(selected.shape[2]):
+            print(selected[:,:,i,:])
+
 
     def _draw_masks(self, frame, masks):
         mask_img = frame.copy()
