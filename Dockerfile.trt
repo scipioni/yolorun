@@ -97,14 +97,18 @@ WORKDIR /app
 COPY ./yolorun ./yolorun
 RUN mkdir -p /app/pkgs
 RUN bash -c "cp -a /project/__pypackages__/3*/* /app/pkgs"
-
-## enable onnruntime
-COPY --from=onnxruntime /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
-RUN pip install /tmp/*.whl && rm -f /tmp/*whl
-
-
 ENV PYTHONPATH=/app/pkgs/lib:/app:$PYTHONPATH
 ENV PATH=/app/pkgs/bin:$PATH
+
+## enable onnruntime
+## compiled onnxruntime
+#COPY --from=onnxruntime /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
+#RUN pip install /tmp/*.whl && rm -f /tmp/*whl
+## or from pip
+RUN pip install onnxruntime-gpu
+
+
+
 
 # serve per cv2.imshow
 # RUN \

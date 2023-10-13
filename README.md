@@ -9,6 +9,12 @@ testing about yolo inference: ```yolorun -m <model> --size 416```
 
 ## GPU
 
+prereq
+```
+yay -S libnvidia-container libnvidia-container-tools nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
 check capabilities with
 ```
 nvidia-smi --query-gpu=compute_cap --format=csv
