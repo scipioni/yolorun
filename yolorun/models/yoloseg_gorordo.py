@@ -584,7 +584,10 @@ class ModelOnnxSeg(Model):
         for i, box in enumerate(boxes):
             left, top, right, bottom = box
             xxx = self._get_mask(
-                box=box, box_on_model=predictions[i, :4], mask=predictions[i, 4 + num_classes :]
+                output1=output1,
+                box=box,
+                box_on_model=predictions[i, :4],
+                mask=predictions[i, 4 + num_classes :],
             )
 
             self.bboxes.add(
@@ -601,20 +604,47 @@ class ModelOnnxSeg(Model):
                 )
             )
 
-    def _get_mask(self, box, box_on_model, mask):
+    def _get_mask(self, output1, box, box_on_model, mask):
         mask = np.concatenate((box_on_model, mask)).astype(np.float32)
+        # fake ###
+        #output1 = np.ones((1,32,160,160), dtype=np.float32)
+        #mask = np.ones((36,), dtype=np.float32)
+        #########
         max_size = max(self.yoloseg.input_height, self.yoloseg.input_width)
         left, top, right, bottom = box
         w = abs(right - left)
         h = abs(bottom - top)
-        mask_config = np.array([
-            max_size, 
-            left + w/2, # x
-            top + h/2, # upscale y
-            w, # upscale width
-            h, # upscale height
-            120,120,120,120 # ...Colors.hexToRgba(color, 120), // color in RGBA
-        ]).astype(np.float32)
+        #print("max_size", max_size)
+        mask_config = np.array(
+            [
+                max_size,
+                left + w / 2,  # x
+                top + h / 2,  # upscale y
+                w,  # upscale width
+                h,  # upscale height
+                120,
+                120,
+                120,
+                120,  # ...Colors.hexToRgba(color, 120), // color in RGBA
+            ]
+        ).astype(np.float32)
+        overlay = np.zeros((640,640,4), dtype=np.uint8)
+
+        print("mask expected 1,32,160,160", output1.shape)
+        print("detection expected 36", mask.shape)
+        print("config expected 9", mask_config.shape)
+        print("overlay expected 640,640,4", overlay.shape)
+
+        mask_filter = self.session_mask.run(
+            ["mask_filter"],
+            {
+                "detection": mask,
+                "mask": output1,
+                "config": mask_config,
+                "overlay": overlay,
+            },
+        )
+        print("mask_filter", mask_filter)
 
     def _draw_masks(self, frame, masks):
         mask_img = frame.copy()

@@ -51,7 +51,6 @@ export const detectImage = async (
     modelWidth,
     4,
   ]); // create overlay to draw segmentation object
-
   // looping through output
   for (let idx = 0; idx < selected.dims[1]; idx++) {
     const data = selected.data.slice(idx * selected.dims[2], (idx + 1) * selected.dims[2]); // get rows
@@ -69,9 +68,9 @@ export const detectImage = async (
         box[3], // before upscale h
       ],
       maxSize
-    ); // keep boxes in maxSize range
+      ); // keep boxes in maxSize range
 
-    const [x, y, w, h] = overflowBoxes(
+      const [x, y, w, h] = overflowBoxes(
       [
         Math.floor(box[0] * xRatio), // upscale left
         Math.floor(box[1] * yRatio), // upscale top
@@ -105,22 +104,26 @@ export const detectImage = async (
         h, // upscale height
         ...Colors.hexToRgba(color, 120), // color in RGBA
       ])
-    ); // mask config
-    const { mask_filter } = await session.mask.run({
-      detection: mask,
-      mask: output1,
+      ); // mask config
+      console.log("detection", mask)
+      console.log("mask", output1)
+      console.log("config", maskConfig)
+      console.log("overlay", overlay)
+      const { mask_filter } = await session.mask.run({
+        detection: mask,
+        mask: output1,
       config: maskConfig,
       overlay: overlay,
     }); // perform post-process to get mask
 
     overlay = mask_filter; // update overlay with the new one
   }
-
+  
   const mask_img = new ImageData(new Uint8ClampedArray(overlay.data), modelHeight, modelWidth); // create image data from mask overlay
   ctx.putImageData(mask_img, 0, 0); // put overlay to canvas
 
   renderBoxes(ctx, boxes); // draw boxes after overlay added to canvas
-
+  
   input.delete(); // delete unused Mat
 };
 
