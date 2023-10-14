@@ -44,5 +44,13 @@ tasks:
         xhost +local:root
         docker compose run --rm trt bash
 
+  models:
+    cmds:
+      - |
+        mkdir -p models
+        cd models
+        wget https://github.com/Hyuto/yolov8-seg-onnxruntime-web/raw/master/public/model/nms-yolov8.onnx
+        wget https://github.com/Hyuto/yolov8-seg-onnxruntime-web/raw/master/public/model/mask-yolov8-seg.onnx
+
 
   
