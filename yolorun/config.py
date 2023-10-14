@@ -33,6 +33,7 @@ def get_config() -> Any:
     #parser.add_argument("--models", default="./models", help="models repo")
     parser.add_argument("-m", "--model", default="", help="model name")
     parser.add_argument("--model-nms", default="", help="nms model name")
+    parser.add_argument("--model-mask", default="", help="mask model name")
 
     parser.add_argument("--weights", default="", help="model weights (darknet)")
     parser.add_argument("--show-ann", action="store_true", default=False, help="show annotator info")
