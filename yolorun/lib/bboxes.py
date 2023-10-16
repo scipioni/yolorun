@@ -6,13 +6,14 @@ import numpy as np
 class BBox:
     confidence = 1.0
 
-    def __init__(self, classId, x1, y1, x2, y2, w, h, confidence=1.0, mask=None):
+    def __init__(self, classId, x1, y1, x2, y2, w, h, confidence=1.0, mask=None, mask2=None):
         self.classId = int(classId)
         self.w = w
         self.h = h
         self.box = (x1, y1, x2, y2)
         self.confidence = confidence
         self.mask = mask
+        self.mask2 = mask2
 
     def getYolo(self):
         x1, y1, x2, y2 = self.box
@@ -72,6 +73,8 @@ class BBox:
         crop_mask_img = crop_mask_img * (1 - crop_mask) + crop_mask * color
         mask_img[y1:y2, x1:x2] = crop_mask_img
 
+    def show_mask2(self, frame):
+        return cv.addWeighted(frame, 1.0, self.mask2, 0.5, 0) 
 
 class BBoxes:
     def __init__(self, truth=True, segmentation=False):
@@ -137,11 +140,20 @@ class BBoxes:
         for box in self.bboxes:
             box.show(frame, self.truth)
         if self.segmentation:
-            mask_img = frame.copy()
+            masked = frame.copy()
+            #masked = cv.cvtColor(frame, cv.COLOR_BGR2BGRA)
+            mask2 = False
             for box in self.bboxes:
                 if box.mask is not None:
-                    box.show_mask(mask_img)        
-            return cv.addWeighted(mask_img, mask_alpha, frame, 1 - mask_alpha, 0)
+                    print("masked=", masked.shape, "mask=", box.mask.shape)
+                    box.show_mask(masked)
+                if box.mask2 is not None:
+                    masked = box.show_mask2(masked)
+                    mask2 = True
+            if mask2:
+                return masked
+            else:
+                return cv.addWeighted(masked, mask_alpha, frame, 1 - mask_alpha, 0)
         return frame
 
     def merge(self, bboxes_in, filter_classes):

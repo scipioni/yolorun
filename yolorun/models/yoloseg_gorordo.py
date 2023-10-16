@@ -511,6 +511,7 @@ class ModelOnnxSeg(Model):
         self.yoloseg = YOLOSeg(config.model, conf_thres=0.5, iou_thres=0.7)
         if self.config.model_nms:
             log.info("loading nms model %s", self.config.model_nms)
+
             self.session_nms = onnxruntime.InferenceSession(
                 self.config.model_nms,
                 providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
@@ -583,13 +584,19 @@ class ModelOnnxSeg(Model):
         boxes = self.yoloseg.extract_boxes(box_predictions)
         for i, box in enumerate(boxes):
             left, top, right, bottom = box
-            xxx = self._get_mask(
+            box_on_model = predictions[i, :4]
+            box_on_model[0] = box_on_model[0] - 0.5*box_on_model[2]
+            box_on_model[1] = box_on_model[1] - 0.5*box_on_model[3]
+            #print("box", box_on_model)
+            mask_filter = self._get_mask(
                 output1=output1,
                 box=box,
-                box_on_model=predictions[i, :4],
+                box_on_model=box_on_model,
                 mask=predictions[i, 4 + num_classes :],
             )
-
+            #mask2 = cv2.resize(mask_filter, (self.w, self.h))
+            mask2 = cv2.resize(cv2.cvtColor(mask_filter, cv2.COLOR_BGRA2BGR), (self.w, self.h))
+            print("mask2 shape:", mask2.shape)
             self.bboxes.add(
                 BBox(
                     class_ids[i],
@@ -600,7 +607,7 @@ class ModelOnnxSeg(Model):
                     self.w,
                     self.h,
                     scores[i],
-                    # mask=masks[i]
+                    mask2=mask2,
                 )
             )
 
@@ -622,16 +629,16 @@ class ModelOnnxSeg(Model):
                 top + h / 2,  # upscale y
                 w,  # upscale width
                 h,  # upscale height
-                120,
-                120,
-                120,
+                255, 
+                112,
+                31,
                 120,  # ...Colors.hexToRgba(color, 120), // color in RGBA
             ]
         ).astype(np.float32)
         overlay = np.zeros((640,640,4), dtype=np.uint8)
 
         print("mask expected 1,32,160,160", output1.shape)
-        print("detection expected 36", mask.shape)
+        print("detection expected 36", mask.shape, mask)
         print("config expected 9", mask_config.shape)
         print("overlay expected 640,640,4", overlay.shape)
 
@@ -644,7 +651,8 @@ class ModelOnnxSeg(Model):
                 "overlay": overlay,
             },
         )
-        print("mask_filter", mask_filter)
+        #print("mask_filter", np.squeeze(mask_filter).shape)
+        return np.squeeze(mask_filter)
 
     def _draw_masks(self, frame, masks):
         mask_img = frame.copy()
