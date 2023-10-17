@@ -250,6 +250,9 @@ class FileGrabber(Grabber):
         if self.current < 0:
             self.current = 0
 
+        if self.config.loop and self.current >= len(self.files):
+            self.current = 0
+
         if self.key in ("n", "."):
             self.current += 1
             self.isNew = True

@@ -29,7 +29,7 @@ def get_config() -> Any:
     parser.add_argument("--webcam", action="store_true", default=False)
     parser.add_argument("--step", action="store_true", default=False)
     parser.add_argument("--crop", action="store_true", default=False)
-    
+    parser.add_argument("--loop", action="store_true", default=False, help="loop files")
     #parser.add_argument("--models", default="./models", help="models repo")
     parser.add_argument("-m", "--model", default="", help="model name")
     parser.add_argument("--model-nms", default="", help="nms model name")
