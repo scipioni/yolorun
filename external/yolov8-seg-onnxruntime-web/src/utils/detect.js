@@ -105,6 +105,8 @@ export const detectImage = async (
         ...Colors.hexToRgba(color, 120), // color in RGBA
       ])
       ); // mask config
+      console.log("----------")
+      console.log([maxSize,x,y,w,h])
       console.log("detection", mask)
       console.log("mask", output1)
       console.log("config", maskConfig)

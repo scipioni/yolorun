@@ -574,29 +574,25 @@ class ModelOnnxSeg(Model):
         predictions = np.squeeze(selected)
         num_classes = predictions.shape[1] - self.num_masks - 4
         scores = np.max(predictions[:, 4 : 4 + num_classes], axis=1)
-        # predictions = predictions[scores > self.config.confidence_min, :]
+        #predictions = predictions[scores > self.config.confidence_min, :]
         # scores = scores[scores > self.config.confidence_min]
         # print(selected.tolist())
         # print(scores)
         box_predictions = predictions[..., : num_classes + 4]
         class_ids = np.argmax(box_predictions[:, 4:], axis=1)
-        # print(class_ids)
         boxes = self.yoloseg.extract_boxes(box_predictions)
         for i, box in enumerate(boxes):
-            left, top, right, bottom = box
             box_on_model = predictions[i, :4]
             box_on_model[0] = box_on_model[0] - 0.5*box_on_model[2]
             box_on_model[1] = box_on_model[1] - 0.5*box_on_model[3]
-            #print("box", box_on_model)
+
             mask_filter = self._get_mask(
                 output1=output1,
-                box=box,
                 box_on_model=box_on_model,
                 mask=predictions[i, 4 + num_classes :],
             )
-            #mask2 = cv2.resize(mask_filter, (self.w, self.h))
             mask2 = cv2.resize(cv2.cvtColor(mask_filter, cv2.COLOR_BGRA2BGR), (self.w, self.h))
-            print("mask2 shape:", mask2.shape)
+            left, top, right, bottom = box
             self.bboxes.add(
                 BBox(
                     class_ids[i],
@@ -611,36 +607,24 @@ class ModelOnnxSeg(Model):
                 )
             )
 
-    def _get_mask(self, output1, box, box_on_model, mask):
+    def _get_mask(self, output1, box_on_model, mask):
         mask = np.concatenate((box_on_model, mask)).astype(np.float32)
-        # fake ###
-        #output1 = np.ones((1,32,160,160), dtype=np.float32)
-        #mask = np.ones((36,), dtype=np.float32)
-        #########
         max_size = max(self.yoloseg.input_height, self.yoloseg.input_width)
-        left, top, right, bottom = box
-        w = abs(right - left)
-        h = abs(bottom - top)
-        #print("max_size", max_size)
+        left, top, w, h = box_on_model
         mask_config = np.array(
             [
                 max_size,
-                left + w / 2,  # x
-                top + h / 2,  # upscale y
-                w,  # upscale width
-                h,  # upscale height
+                left,
+                top,
+                w,
+                h,
                 255, 
-                112,
-                31,
+                120,
+                120,
                 120,  # ...Colors.hexToRgba(color, 120), // color in RGBA
             ]
         ).astype(np.float32)
-        overlay = np.zeros((640,640,4), dtype=np.uint8)
-
-        print("mask expected 1,32,160,160", output1.shape)
-        print("detection expected 36", mask.shape, mask)
-        print("config expected 9", mask_config.shape)
-        print("overlay expected 640,640,4", overlay.shape)
+        overlay = np.zeros((self.yoloseg.input_width, self.yoloseg.input_height, 4), dtype=np.uint8)
 
         mask_filter = self.session_mask.run(
             ["mask_filter"],
@@ -651,7 +635,6 @@ class ModelOnnxSeg(Model):
                 "overlay": overlay,
             },
         )
-        #print("mask_filter", np.squeeze(mask_filter).shape)
         return np.squeeze(mask_filter)
 
     def _draw_masks(self, frame, masks):
