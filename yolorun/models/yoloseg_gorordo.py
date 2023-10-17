@@ -571,13 +571,11 @@ class ModelOnnxSeg(Model):
         )
 
         selected = np.array(selected)
-        predictions = np.squeeze(selected)
+        predictions = np.squeeze(selected, axis=(0,1))
         num_classes = predictions.shape[1] - self.num_masks - 4
         scores = np.max(predictions[:, 4 : 4 + num_classes], axis=1)
         #predictions = predictions[scores > self.config.confidence_min, :]
         # scores = scores[scores > self.config.confidence_min]
-        # print(selected.tolist())
-        # print(scores)
         box_predictions = predictions[..., : num_classes + 4]
         class_ids = np.argmax(box_predictions[:, 4:], axis=1)
         boxes = self.yoloseg.extract_boxes(box_predictions)

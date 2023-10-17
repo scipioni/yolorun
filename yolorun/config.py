@@ -38,7 +38,7 @@ def get_config() -> Any:
     parser.add_argument("--weights", default="", help="model weights (darknet)")
     parser.add_argument("--show-ann", action="store_true", default=False, help="show annotator info")
     parser.add_argument("--url", default="", help="camera url, for example rtsp://10.1.16.107:554/s0")
-    parser.add_argument("--confidence-min", type=float, default=0.1)
+    parser.add_argument("--confidence-min", type=float, default=0.5)
 
     #parser.add_argument('--engine', default="models/yolov8n.engine", help='Engine file')
     parser.add_argument('--device',
