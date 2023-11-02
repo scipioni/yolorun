@@ -102,6 +102,9 @@ ENV PATH=/app/pkgs/bin:$PATH
 ## or from pip
 RUN pip install onnxruntime-gpu
 
+# serve per triple-Mu without torch
+RUN pip install cuda-python
+
 
 
 
