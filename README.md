@@ -11,9 +11,17 @@ on RTX 3060
 
 | 416x416 | fps | pre/inference/post (ms) |  
 |---|---|--|
-| seg triple-Mu with torch | 153 | 2.6/1.2/2.7ms | 
+| seg triple-Mu with torch | 153 fps | 2.6/1.2/2.7ms | 
 
+on Quadro P4000
 
+| 416x416 | fps | pre/inference/post (ms) |  
+|---|---|--|
+| seg triple-Mu with torch    | 125 fps | 1.9/4.0/2.1ms | 
+| seg yogordo with gpu nms    | 61 fps  | 2.7/7.0/6.5ms |
+| seg yogordo with cpu nms    | 30 fps  | 7.4/13.0/12.8ms |
+| detection dnn (supertiny)   | 334 fps | 2.9ms |
+| detection trt               | 227 fps | 1.5/2.8/0.1ms |
 
 ## GPU
 
@@ -130,7 +138,8 @@ yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 
 create onnx from *.pt
 ```
-yolo export model=/models/yolov8n-seg.pt format=onnx  imgsz=416 simplify=True [opset=12] [simplify=True]
+task ultra
+yolo export model=/models/yolov8n-seg.pt format=onnx imgsz=416 simplify=True [opset=12] [simplify=True]
 ```
 
 create *.engine from *.onnx
@@ -141,7 +150,12 @@ export-seg -o /models/yolov8n-seg.onnx
 inference with trt/pycuda
 ```
 task trt
+
+# with nms in cpu (non funziona !!!)
 yolorun --model /models/yolov8n-seg.engine --show --step /samples/*jpg
+
+# with nms in gpu with 3 networks
+yolorun --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8.onnx --model-mask /models/mask-yolov8-seg.onnx --debug /dataset/plates/test/*jpg --show --step
 ```
 
 
@@ -152,18 +166,19 @@ create /models/yolov8n-seg.onnx from /models/yolov8n-seg.pt
 ```
 task ultra
 cd /external/YOLOv8-TensorRT
-python3 export-seg.py --weights /models/yolov8n-seg.pt --opset 11 --sim --input-shape 1 3 416 416 --device cuda:0
+cp /models/yolov8n-seg.pt /models/yolov8n-3mu-seg.pt
+python export-seg.py --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416 --device cuda:0
 
 ```
 
-create trt engine yolov8n-seg.engine from yolov8n-seg.onnx
+create trt engine yolov8n-3mu-seg.engine from yolov8n-3mu-seg.onnx
 ```
-python3 build.py --weights /models/yolov8n-seg.onnx --fp16  --device cuda:0 --seg
+python build.py --weights /models/yolov8n-3mu-seg.onnx --fp16 --device cuda:0 --seg
 ```
 
 inference
 ```
-python3 infer-seg.py --engine /models/yolov8n-seg.engine --imgs /samples --show --device cuda:0
+python infer-seg.py --engine /models/yolov8n-3mu-seg.engine --imgs /samples --show
 ```
 
 ## Taotoolkit Segmentation Model Training and Deployment

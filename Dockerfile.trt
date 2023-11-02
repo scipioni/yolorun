@@ -100,12 +100,16 @@ ENV PATH=/app/pkgs/bin:$PATH
 #COPY --from=onnxruntime /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
 #RUN pip install /tmp/*.whl && rm -f /tmp/*whl
 ## or from pip
-RUN pip install onnxruntime-gpu
+RUN pip install onnxruntime-gpu onnx
 
 # serve per triple-Mu without torch
-RUN pip install cuda-python
+RUN pip install cuda-python 
 
+# serve per triple-Mu con torch
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
+# serve per tensorrt con cuda 11.8
+RUN pip install numpy==1.23.5
 
 
 # serve per cv2.imshow

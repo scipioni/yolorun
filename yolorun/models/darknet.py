@@ -54,7 +54,7 @@ class ModelDarknet(Model):
 
         #frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
-        with timing("cv.dnn.detect"):
+        with timing("pre,inference,post"):
             classIds, confidences, boxes = self.net.detect(
                 frame, confThreshold, nmsThreshold
             )

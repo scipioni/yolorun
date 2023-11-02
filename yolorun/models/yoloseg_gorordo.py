@@ -7,6 +7,7 @@ import logging
 
 from .__init__ import Model
 from yolorun.lib.grabber import BBoxes, BBox
+from yolorun.lib.timing import timing
 
 log = logging.getLogger(__name__)
 
@@ -301,15 +302,18 @@ class YOLOSeg:
         print("onnx device:", onnxruntime.get_device())
 
     def segment_objects(self, image):
-        input_tensor = self.prepare_input(image)
+        with timing("preprocess"):
+            input_tensor = self.prepare_input(image)
 
         # Perform inference on the image
-        outputs = self.inference(input_tensor)
+        with timing("inference"):
+            outputs = self.inference(input_tensor)
 
-        self.boxes, self.scores, self.class_ids, mask_pred = self.process_box_output(
-            outputs[0]
-        )
-        self.mask_maps = self.process_mask_output(mask_pred, outputs[1])
+        with timing("postprocess"):
+            self.boxes, self.scores, self.class_ids, mask_pred = self.process_box_output(
+                outputs[0]
+            )
+            self.mask_maps = self.process_mask_output(mask_pred, outputs[1])
 
         return self.boxes, self.scores, self.class_ids, self.mask_maps
 
@@ -560,50 +564,53 @@ class ModelOnnxSeg(Model):
         # combined_img = yoloseg.draw_masks(img)
 
     def _predict_with_nms(self, frame):
-        input_tensor = self.yoloseg.prepare_input(frame)
+        with timing("preprocess"):
+            input_tensor = self.yoloseg.prepare_input(frame)
 
-        output0, output1 = self.yoloseg.session.run(
-            self.yoloseg.output_names, {self.yoloseg.input_names[0]: input_tensor}
-        )
-
-        selected = self.session_nms.run(
-            ["selected"], {"detection": output0, "config": self.config_nms}
-        )
-
-        selected = np.array(selected)
-        predictions = np.squeeze(selected, axis=(0,1))
-        num_classes = predictions.shape[1] - self.num_masks - 4
-        scores = np.max(predictions[:, 4 : 4 + num_classes], axis=1)
-        #predictions = predictions[scores > self.config.confidence_min, :]
-        # scores = scores[scores > self.config.confidence_min]
-        box_predictions = predictions[..., : num_classes + 4]
-        class_ids = np.argmax(box_predictions[:, 4:], axis=1)
-        boxes = self.yoloseg.extract_boxes(box_predictions)
-        for i, box in enumerate(boxes):
-            box_on_model = predictions[i, :4]
-            box_on_model[0] = box_on_model[0] - 0.5*box_on_model[2]
-            box_on_model[1] = box_on_model[1] - 0.5*box_on_model[3]
-
-            mask_filter = self._get_mask(
-                output1=output1,
-                box_on_model=box_on_model,
-                mask=predictions[i, 4 + num_classes :],
+        with timing("inference"):
+            output0, output1 = self.yoloseg.session.run(
+                self.yoloseg.output_names, {self.yoloseg.input_names[0]: input_tensor}
             )
-            mask2 = cv2.resize(cv2.cvtColor(mask_filter, cv2.COLOR_BGRA2BGR), (self.w, self.h))
-            left, top, right, bottom = box
-            self.bboxes.add(
-                BBox(
-                    class_ids[i],
-                    left,
-                    top,
-                    right,
-                    bottom,
-                    self.w,
-                    self.h,
-                    scores[i],
-                    mask2=mask2,
+
+        with timing("postprocess"):
+            selected = self.session_nms.run(
+                ["selected"], {"detection": output0, "config": self.config_nms}
+            )
+
+            selected = np.array(selected)
+            predictions = np.squeeze(selected, axis=(0,1))
+            num_classes = predictions.shape[1] - self.num_masks - 4
+            scores = np.max(predictions[:, 4 : 4 + num_classes], axis=1)
+            #predictions = predictions[scores > self.config.confidence_min, :]
+            # scores = scores[scores > self.config.confidence_min]
+            box_predictions = predictions[..., : num_classes + 4]
+            class_ids = np.argmax(box_predictions[:, 4:], axis=1)
+            boxes = self.yoloseg.extract_boxes(box_predictions)
+            for i, box in enumerate(boxes):
+                box_on_model = predictions[i, :4]
+                box_on_model[0] = box_on_model[0] - 0.5*box_on_model[2]
+                box_on_model[1] = box_on_model[1] - 0.5*box_on_model[3]
+
+                mask_filter = self._get_mask(
+                    output1=output1,
+                    box_on_model=box_on_model,
+                    mask=predictions[i, 4 + num_classes :],
                 )
-            )
+                mask2 = cv2.resize(cv2.cvtColor(mask_filter, cv2.COLOR_BGRA2BGR), (self.w, self.h))
+                left, top, right, bottom = box
+                self.bboxes.add(
+                    BBox(
+                        class_ids[i],
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        self.w,
+                        self.h,
+                        scores[i],
+                        mask2=mask2,
+                    )
+                )
 
     def _get_mask(self, output1, box_on_model, mask):
         mask = np.concatenate((box_on_model, mask)).astype(np.float32)
