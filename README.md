@@ -7,6 +7,14 @@ testing about yolo inference: ```yolorun -m <model> --size 416```
 | quadro 4000 | 260fps inference 3.2ms | 114fps | 191fps inference 2.7ms |  |
 | RTX 3060 | 290fps inference 3.3ms |  |  |  |
 
+on RTX 3060
+
+| 416x416 | fps | pre/inference/post (ms) |  
+|---|---|--|
+| seg triple-Mu with torch | 153 | 2.6/1.2/2.7ms | 
+
+
+
 ## GPU
 
 prereq
@@ -136,6 +144,27 @@ task trt
 yolorun --model /models/yolov8n-seg.engine --show --step /samples/*jpg
 ```
 
+
+#### testing triple-Mu https://github.com/triple-Mu/YOLOv8-TensorRT/
+
+
+create /models/yolov8n-seg.onnx from /models/yolov8n-seg.pt
+```
+task ultra
+cd /external/YOLOv8-TensorRT
+python3 export-seg.py --weights /models/yolov8n-seg.pt --opset 11 --sim --input-shape 1 3 416 416 --device cuda:0
+
+```
+
+create trt engine yolov8n-seg.engine from yolov8n-seg.onnx
+```
+python3 build.py --weights /models/yolov8n-seg.onnx --fp16  --device cuda:0 --seg
+```
+
+inference
+```
+python3 infer-seg.py --engine /models/yolov8n-seg.engine --imgs /samples --show --device cuda:0
+```
 
 ## Taotoolkit Segmentation Model Training and Deployment
 

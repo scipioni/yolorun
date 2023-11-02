@@ -22,6 +22,7 @@ services:
       - /etc/inputrc:/etc/inputrc:ro
       - ./runtime/bash_history:/root/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./external:/external
     environment:
       - DISPLAY
       - QT_X11_NO_MITSHM=1
@@ -60,10 +61,10 @@ services:
       - ${DATASET}:/dataset
       - ./samples:/samples
       - ./yolorun:/app/yolorun
-      #- ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
       - ./runtime/bash_history_trt:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./external:/external
     environment:
       - DISPLAY
       - QT_X11_NO_MITSHM=1
@@ -97,6 +98,7 @@ services:
       - /etc/inputrc:/etc/inputrc:ro
       - ./runtime/bash_history_ultra:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./external:/external
     environment:
       - DISPLAY
       - QT_X11_NO_MITSHM=1
