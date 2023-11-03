@@ -145,7 +145,7 @@ class BBoxes:
             mask2 = False
             for box in self.bboxes:
                 if box.mask is not None:
-                    print("masked=", masked.shape, "mask=", box.mask.shape)
+                    #print("masked=", masked.shape, "mask=", box.mask.shape)
                     box.show_mask(masked)
                 if box.mask2 is not None:
                     masked = box.show_mask2(masked)

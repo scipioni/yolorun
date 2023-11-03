@@ -26,7 +26,9 @@ yolorun = "yolorun.main:main"
 yolo2ls = "yolorun.yolo2ls:main"
 ### new yolov8 tensorrt
 export-det = "yolorun.models.trt.export:run"
-export-seg = "yolorun.models.trt.export_seg:run"
+export-seg-yogordo = "yolorun.models.trt.export_seg:run"
+pt2onnx = "yolorun.models.triplemu.pt2onnx:run"
+onnx2engine = "yolorun.models.triplemu.onnx2engine:run"
 ### old yolov8 tensorrt
 #export-seg = "yolorun.yolov8.export_seg:main"
 #infer-det = "yolorun.yolov8.infer_det:run"

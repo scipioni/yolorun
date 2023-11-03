@@ -100,7 +100,8 @@ ENV PATH=/app/pkgs/bin:$PATH
 #COPY --from=onnxruntime /code/onnxruntime/build/Linux/Release/dist/*.whl /tmp
 #RUN pip install /tmp/*.whl && rm -f /tmp/*whl
 ## or from pip
-RUN pip install onnxruntime-gpu onnx
+#RUN pip install onnxruntime-gpu onnx
+RUN pip install onnx
 
 # serve per triple-Mu without torch
 RUN pip install cuda-python 
@@ -110,17 +111,6 @@ RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/c
 
 # serve per tensorrt con cuda 11.8
 RUN pip install numpy==1.23.5
-
-
-# serve per cv2.imshow
-# RUN \
-#   apt-get update && \
-#   apt-get install -y -q --no-install-recommends \
-#     xcb \ 
-#     libglib2.0-0 \
-#     libgl1-mesa-glx && \
-#   apt-get -y clean && \
-#     rm -rf /var/lib/apt/lists/*
 
 # serve per cv2.imshow
 RUN \
@@ -133,8 +123,6 @@ RUN \
   libgtk2.0-0 \
   libcanberra-gtk-module && \
   rm -rf /var/lib/apt/lists/*
-
-#RUN /opt/tensorrt/install_opensource.sh
 
 # solo se python3.8
 RUN ln -s /usr/local/lib/python3.8/site-packages/cv2 /usr/local/lib/python3.8/dist-packages/cv2

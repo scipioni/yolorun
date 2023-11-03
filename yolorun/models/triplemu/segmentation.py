@@ -13,6 +13,8 @@ from yolorun.lib.timing import timing
 from .engine import TRTModule
 
 class TripleMuSegmentation(Model):
+    segmentation = True
+
     def __init__(self, config):
         super().__init__(config)
         self.device = torch.device(config.device)
@@ -54,26 +56,35 @@ class TripleMuSegmentation(Model):
             indices = (labels % len(MASK_COLORS)).long()
             bboxes -= dwdh
             bboxes /= ratio
-        mask_colors = torch.asarray(MASK_COLORS, device=self.device)[indices]
-        mask_colors = mask_colors.view(-1, 1, 1, 3) * ALPHA
-        mask_colors = masks @ mask_colors
-        inv_alph_masks = (1 - masks * 0.5).cumprod(0)
-        mcs = (mask_colors * inv_alph_masks).sum(0) * 2
-        seg_img = (seg_img * inv_alph_masks[-1] + mcs) * 255
+        #mask_colors = torch.asarray(MASK_COLORS, device=self.device)[indices]
+        #mask_colors = mask_colors.view(-1, 1, 1, 3) * ALPHA
+        #mask_colors = masks @ mask_colors
+        #inv_alph_masks = (1 - masks * 0.5).cumprod(0)
+        #mcs = (mask_colors * inv_alph_masks).sum(0) * 2
+        #seg_img = (seg_img * inv_alph_masks[-1] + mcs) * 255
 
-        # draw = cv2.resize(seg_img.cpu().numpy().astype(np.uint8),
-        #                 draw.shape[:2][::-1])
-        # for (bbox, score, label) in zip(bboxes, scores, labels):
-        #     bbox = bbox.round().int().tolist()
-        #     cls_id = int(label)
-        #     cls = CLASSES[cls_id]
-        #     color = COLORS[cls]
-        #     cv2.rectangle(draw, bbox[:2], bbox[2:], color, 2)
-        #     cv2.putText(draw,
-        #                 f'{cls}:{score:.3f}', (bbox[0], bbox[1] - 2),
-        #                 cv2.FONT_HERSHEY_SIMPLEX,
-        #                 0.75, [225, 255, 255],
-        #                 thickness=2)
+        #draw = cv.resize(seg_img.cpu().numpy().astype(np.uint8), frame.shape[:2][::-1])
+        #cv.imshow("mask", draw)
+        for (bbox, score, label, mask) in zip(bboxes, scores, labels, masks):
+            if score < self.config.confidence_min:
+                continue
+            left,top,right,bottom = bbox.round().int().tolist()
+            cls_id = int(label)
+            mask = cv.resize(mask.cpu().numpy().astype(np.uint8), frame.shape[:2][::-1])
+            self.bboxes.add(
+                    BBox(
+                        cls_id,
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        self.w,
+                        self.h,
+                        score.item(),
+                        mask=mask,
+                    )
+                )
+
 
 
     def __str__(self):

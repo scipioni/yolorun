@@ -17,7 +17,7 @@ on Quadro P4000
 
 | 416x416 | fps | pre/inference/post (ms) |  
 |---|---|--|
-| seg triple-Mu with torch    | 125 fps | 1.9/4.0/2.1ms | 
+| seg triple-Mu with torch    | 128 fps | 2.4/3.6/1.8ms | 
 | seg yogordo with gpu nms    | 61 fps  | 2.7/7.0/6.5ms |
 | seg yogordo with cpu nms    | 30 fps  | 7.4/13.0/12.8ms |
 | detection dnn (supertiny)   | 334 fps | 2.9ms |
@@ -159,9 +159,20 @@ yolorun --linaom --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8
 
 ### segmentation with tripleMu
 
-TODO: convert pt into engine
+convert pt into onnx
+```
+task ultra
+VERIFY pt2onnx --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416
+```
 
-TODO inference
+convert onnx into engine
+```
+task trt
+VERIFY onnx2engine --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
+
+```
+
+inference
 ```
 yolorun --model /models/yolov8n-3mu-seg.engine --show --step /samples/*jpg
 ```
@@ -177,14 +188,14 @@ create /models/yolov8n-seg.onnx from /models/yolov8n-seg.pt
 task ultra
 cd /external/YOLOv8-TensorRT
 cp /models/yolov8n-seg.pt /models/yolov8n-3mu-seg.pt
-python export-seg.py --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416 --device cuda:0
+python export-seg.py --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416
 
 ```
 
 create trt engine yolov8n-3mu-seg.engine from yolov8n-3mu-seg.onnx on inference cuda machine
 ```
 task trt
-python build.py --weights /models/yolov8n-3mu-seg.onnx --fp16 --device cuda:0 --seg
+python build.py --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
 ```
 
 inference
