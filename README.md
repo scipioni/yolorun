@@ -109,8 +109,7 @@ yolorun -m /models/fp.engine --show rtsp://$IP:554/cam/realmonitor?channel=2&sub
 ## tensorrt 
 
 
-### detection
-
+### detection with Linaom1214/TensorRT-For-YOLO-Series
 
 create onnx from *.pt 
 ```
@@ -134,7 +133,7 @@ yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 ```
 
 
-### segmentation
+### segmentation with linaom (and 3 networks)
 
 create onnx from *.pt
 ```
@@ -152,11 +151,22 @@ inference with trt/pycuda
 task trt
 
 # with nms in cpu (non funziona !!!)
-yolorun --model /models/yolov8n-seg.engine --show --step /samples/*jpg
+yolorun --linaom --model /models/yolov8n-seg.engine --show --step /samples/*jpg
 
 # with nms in gpu with 3 networks
-yolorun --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8.onnx --model-mask /models/mask-yolov8-seg.onnx --debug /dataset/plates/test/*jpg --show --step
+yolorun --linaom --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8.onnx --model-mask /models/mask-yolov8-seg.onnx --debug /dataset/plates/test/*jpg --show --step
 ```
+
+### segmentation with tripleMu
+
+TODO: convert pt into engine
+
+TODO inference
+```
+yolorun --model /models/yolov8n-3mu-seg.engine --show --step /samples/*jpg
+```
+
+
 
 
 #### testing triple-Mu https://github.com/triple-Mu/YOLOv8-TensorRT/
@@ -171,13 +181,15 @@ python export-seg.py --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --inp
 
 ```
 
-create trt engine yolov8n-3mu-seg.engine from yolov8n-3mu-seg.onnx
+create trt engine yolov8n-3mu-seg.engine from yolov8n-3mu-seg.onnx on inference cuda machine
 ```
+task trt
 python build.py --weights /models/yolov8n-3mu-seg.onnx --fp16 --device cuda:0 --seg
 ```
 
 inference
 ```
+task trt
 python infer-seg.py --engine /models/yolov8n-3mu-seg.engine --imgs /samples --show
 ```
 

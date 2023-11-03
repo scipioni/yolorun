@@ -39,6 +39,7 @@ def get_config() -> Any:
     parser.add_argument("--show-ann", action="store_true", default=False, help="show annotator info")
     parser.add_argument("--url", default="", help="camera url, for example rtsp://10.1.16.107:554/s0")
     parser.add_argument("--confidence-min", type=float, default=0.5)
+    parser.add_argument("--iou-thres", type=float, default=0.65)
 
     #parser.add_argument('--engine', default="models/yolov8n.engine", help='Engine file')
     parser.add_argument('--device',
@@ -116,7 +117,8 @@ def get_config() -> Any:
     parser.add_argument("--size", default="416", help="yolo widthxheight size")
     parser.add_argument("--cpu", action="store_true", help="disable CUDA", default=False)
     parser.add_argument("--dnn", action="store_true", help="enable opencv dnn detection model", default=False)
-
+    parser.add_argument("--linaom", action="store_true", help="enable trt linaom", default=False)
+    
     config = parser.parse_args()
     logging.basicConfig(
         format="%(asctime)s [%(levelname)s] %(name)s %(message)s",

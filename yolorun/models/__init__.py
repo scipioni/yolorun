@@ -77,8 +77,12 @@ def getModel(config):
                 # return ModelOnnxDnn(config)
     elif ".engine" in config.model:
         if "-seg" in config.model:
-            from .trt.segmentation import ModelTrtSegmentation
-            return ModelTrtSegmentation(config)             
+            if config.linaom:
+                from .trt.segmentation import ModelTrtSegmentation
+                return ModelTrtSegmentation(config)
+            else:
+                from .triplemu.segmentation import TripleMuSegmentation
+                return TripleMuSegmentation(config)                
         else:
             from .trt.detection import ModelTrt
             return ModelTrt(config) 

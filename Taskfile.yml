@@ -41,7 +41,7 @@ tasks:
     cmds:
       - |
         mkdir -p runtime && touch runtime/bash_history_trt
-        xhost +local:root
+        xhost +local:root || true
         docker compose run --rm trt bash
 
   models:
