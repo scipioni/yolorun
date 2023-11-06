@@ -108,6 +108,37 @@ yolorun -m /models/fp.engine --show rtsp://$IP:554/cam/realmonitor?channel=2&sub
 
 ## tensorrt 
 
+### segmentation with tripleMu
+
+requirements for train host:
+ - ultralitycs
+
+convert pt into onnx
+```
+task ultra
+cp /models/yolov8n-seg.pt /models/yolov8n-3mu-seg.pt
+pt2onnx --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416
+```
+
+
+requirements for orin:
+- system:
+  apt install tensorrt [TODO libtorch3c2]
+- pip:
+  - nvidia-pyindex
+  - torch using https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
+
+convert onnx into engine (on orin)
+```
+task trt
+VERIFY onnx2engine --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
+
+```
+
+inference
+```
+yolorun --model /models/yolov8n-3mu-seg.engine --show --step /samples/*jpg
+```
 
 ### detection with Linaom1214/TensorRT-For-YOLO-Series
 
@@ -132,7 +163,6 @@ yolorun --model /models/yolov8n.engine --show --step /samples/*jpg
 # trtexec --onnx=/models/yolov8n.onnx --saveEngine=/models/yolov8n.engine --fp16
 ```
 
-
 ### segmentation with linaom (and 3 networks)
 
 create onnx from *.pt
@@ -155,26 +185,6 @@ yolorun --linaom --model /models/yolov8n-seg.engine --show --step /samples/*jpg
 
 # with nms in gpu with 3 networks
 yolorun --linaom --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8.onnx --model-mask /models/mask-yolov8-seg.onnx --debug /dataset/plates/test/*jpg --show --step
-```
-
-### segmentation with tripleMu
-
-convert pt into onnx
-```
-task ultra
-VERIFY pt2onnx --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416
-```
-
-convert onnx into engine
-```
-task trt
-VERIFY onnx2engine --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
-
-```
-
-inference
-```
-yolorun --model /models/yolov8n-3mu-seg.engine --show --step /samples/*jpg
 ```
 
 

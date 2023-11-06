@@ -5,7 +5,7 @@ import onnx
 import torch
 from ultralytics import YOLO
 
-from models.common import optim
+from yolorun.models.triplemu.common import optim
 
 try:
     import onnxsim
@@ -72,6 +72,7 @@ def run():
             print(f'Simplifier failure: {e}')
     onnx.save(onnx_model, save_path)
     print(f'ONNX export success, saved as {save_path}')
+
 
 
 if __name__ == '__main__':
