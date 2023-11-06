@@ -41,6 +41,7 @@ def main(args: argparse.Namespace) -> None:
         # inference
         with timing("inference"):
             data = Engine(tensor)
+        continue
 
         with timing("postprocess"):
             seg_img = seg_img[dh:H - dh, dw:W - dw, [2, 1, 0]]

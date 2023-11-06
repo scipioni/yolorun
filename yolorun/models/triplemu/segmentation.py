@@ -25,8 +25,6 @@ class TripleMuSegmentation(Model):
         # set desired output names order
         self.engine.set_desired(['outputs', 'proto'])
 
-
-
     def predict(self, frame):
         super().predict(frame)
 

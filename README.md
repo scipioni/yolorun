@@ -23,6 +23,11 @@ on Quadro P4000
 | detection dnn (supertiny)   | 334 fps | 2.9ms |
 | detection trt               | 227 fps | 1.5/2.8/0.1ms |
 
+
+on Orin in mode 2
+| 416x416 | fps | pre/inference/post (ms) | 
+| seg triple-Mu with torch    | 76 fps | 4.6/3.5/4.7ms |
+
 ## GPU
 
 prereq
@@ -123,16 +128,17 @@ pt2onnx --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 
 
 requirements for orin:
 - system:
-  apt install tensorrt [TODO libtorch3c2]
+    apt install tensorrt [TODO libtorch3c2] python3-libnvinfer
 - pip:
   - nvidia-pyindex
   - torch using https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
+  - install torchvision from git using "git checkout v0.16.0"
 
 convert onnx into engine (on orin)
 ```
 task trt
-VERIFY onnx2engine --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
-
+# onnx2engine --weights /models/yolov8n-3mu-seg.onnx --fp16 --seg
+/usr/src/tensorrt/bin/trtexec --fp16 --onnx=/models/yolov8n-3mu-seg.onnx --saveEngine=/models/yolov8n-3mu-seg.engine
 ```
 
 inference
