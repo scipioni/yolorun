@@ -29,20 +29,20 @@ class TripleMuSegmentation(Model):
         super().predict(frame)
 
         with timing("preprocess"):
-            bgr, ratio, dwdh = letterbox(frame, (self.W, self.H))
+            bgr, ratio, dwdh = letterbox(frame, (self.W, self.H)) # 0.8ms
             dw, dh = int(dwdh[0]), int(dwdh[1])
             rgb = cv.cvtColor(bgr, cv.COLOR_BGR2RGB)
-
-            tensor, seg_img = blob(rgb, return_seg=True)
+            tensor, seg_img = blob(rgb, return_seg=True) # 1.4ms
             dwdh = torch.asarray(dwdh * 2, dtype=torch.float32, device=self.device)
-            tensor = torch.asarray(tensor, device=self.device)
+            tensor = torch.asarray(tensor, device=self.device) # 0.6ms
 
         with timing("inference"):
-            data = self.engine(tensor)
+            data = self.engine(tensor) # 1.2ms
 
-        with timing("postprocess"):
+        with timing("postprocess"): # 2.2ms
             seg_img = torch.asarray(seg_img[dh:self.H - dh, dw:self.W - dw, [2, 1, 0]],
                                     device=self.device)
+            return
             bboxes, scores, labels, masks = seg_postprocess(
                 data, bgr.shape[:2], self.config.confidence_min, self.config.iou_thres)
 

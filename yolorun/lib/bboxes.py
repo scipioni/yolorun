@@ -136,9 +136,9 @@ class BBoxes:
                 pass #print("yolo segmentation")
         return self.bboxes
 
-    def draw(self, frame, mask_alpha=0.3):
+    def draw(self, frame, mask_alpha=0.4):
         for box in self.bboxes:
-            box.show(frame, self.truth)
+           box.show(frame, self.truth)
         if self.segmentation:
             masked = frame.copy()
             #masked = cv.cvtColor(frame, cv.COLOR_BGR2BGRA)

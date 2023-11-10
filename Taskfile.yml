@@ -53,5 +53,6 @@ tasks:
         wget https://github.com/Hyuto/yolov8-seg-onnxruntime-web/raw/master/public/model/mask-yolov8-seg.onnx
         wget https://github.com/Hyuto/yolov8-seg-onnxruntime-web/raw/master/public/model/yolov8n-seg.onnx
 
-
-  
+  train:
+    cmds:
+      - yolo segment train data=/archive/dataset/plates-seg/plates-seg.yaml model=./models/yolov8n-seg.pt batch=-1 pretrained=true exist_ok=true epochs=100 imgsz=416 project=runs/plates-seg

@@ -1,31 +1,33 @@
 version: "3"
 name: "yolorun"
 services:
-  yolorun:
-    image: yololab/yolorun
+
+  ultra:
+    image: yololab/ultra
     build: 
       context: .
+      dockerfile: Dockerfile.ultralitycs
       #target: runtime
-      # args:
-      #   PYTHON_VERSION: 3.10
-      #   CUDA_VERSION: 11.5.2
-      #   UBUNTU_VERSION: 20.04
-      #   ENV: development
-
-      #target: pdm
-    #command: "process_cv"
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    user: ${UID}
     volumes:
+      - ./settings.yaml:/home/user/settings.yaml
+      #- ./runtime/runs:/runs
       - ${MODELS}:/models
-      - ${DATASET}:/dataset
+      - ${DATASET}:/datasets
+      - ./samples:/samples
       - ./yolorun:/app/yolorun
-      - ./opencv-build.sh:/build/opencv-build.sh
+      #- ./opencv-build.sh:/build/opencv-build.sh
       - /etc/inputrc:/etc/inputrc:ro
-      - ./runtime/bash_history:/root/.bash_history
+      - ./runtime/bash_history_ultra:/home/user/.bash_history
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ./external:/external
     environment:
       - DISPLAY
       - QT_X11_NO_MITSHM=1
+      - YOLO_CONFIG_DIR=/home/user
     devices:
       - "/dev/nvidia0:/dev/nvidia0"
       - "/dev/nvidia-uvm:/dev/nvidia-uvm"
@@ -36,7 +38,6 @@ services:
         reservations:
           devices:
             - capabilities: [ gpu ]  
-
 
   trt:
     image: yololab/trt
@@ -79,36 +80,39 @@ services:
           devices:
             - capabilities: [ gpu ]  
 
-  ultra:
-    image: yololab/ultra
-    build: 
-      context: .
-      dockerfile: Dockerfile.ultralitycs
-      #target: runtime
-      args:
-        UID: ${UID}
-        GID: ${GID}
-    user: ${UID}
-    volumes:
-      - ${MODELS}:/models
-      - ${DATASET}:/dataset
-      - ./samples:/samples
-      - ./yolorun:/app/yolorun
-      #- ./opencv-build.sh:/build/opencv-build.sh
-      - /etc/inputrc:/etc/inputrc:ro
-      - ./runtime/bash_history_ultra:/home/user/.bash_history
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ./external:/external
-    environment:
-      - DISPLAY
-      - QT_X11_NO_MITSHM=1
-    devices:
-      - "/dev/nvidia0:/dev/nvidia0"
-      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
-      - "/dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools"
-      - "/dev/nvidiactl:/dev/nvidiactl"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [ gpu ]  
+
+  # yolorun:
+  #   image: yololab/yolorun
+  #   build: 
+  #     context: .
+  #     #target: runtime
+  #     # args:
+  #     #   PYTHON_VERSION: 3.10
+  #     #   CUDA_VERSION: 11.5.2
+  #     #   UBUNTU_VERSION: 20.04
+  #     #   ENV: development
+
+  #     #target: pdm
+  #   #command: "process_cv"
+  #   volumes:
+  #     - ${MODELS}:/models
+  #     - ${DATASET}:/dataset
+  #     - ./yolorun:/app/yolorun
+  #     - ./opencv-build.sh:/build/opencv-build.sh
+  #     - /etc/inputrc:/etc/inputrc:ro
+  #     - ./runtime/bash_history:/root/.bash_history
+  #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  #     - ./external:/external
+  #   environment:
+  #     - DISPLAY
+  #     - QT_X11_NO_MITSHM=1
+  #   devices:
+  #     - "/dev/nvidia0:/dev/nvidia0"
+  #     - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+  #     - "/dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools"
+  #     - "/dev/nvidiactl:/dev/nvidiactl"
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - capabilities: [ gpu ]  

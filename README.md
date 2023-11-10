@@ -122,13 +122,13 @@ convert pt into onnx
 ```
 task ultra
 cp /models/yolov8n-seg.pt /models/yolov8n-3mu-seg.pt
-pt2onnx --weights /models/yolov8n-3mu-seg.pt --opset 11 --sim --input-shape 1 3 416 416
+pt2onnx --opset 11 --sim --input-shape 1 3 416 416 --weights /models/yolov8n-3mu-seg.pt 
 ```
 
 
 requirements for orin:
 - system:
-    apt install tensorrt [TODO libtorch3c2] python3-libnvinfer
+  - tensorrt 8.5.2 ```apt install tensorrt [TODO libtorch3c2] python3-libnvinfer```
 - pip:
   - nvidia-pyindex
   - torch using https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
@@ -194,8 +194,6 @@ yolorun --linaom --model /models/yolov8n-seg.onnx --model-nms /models/nms-yolov8
 ```
 
 
-
-
 #### testing triple-Mu https://github.com/triple-Mu/YOLOv8-TensorRT/
 
 
@@ -220,19 +218,3 @@ task trt
 python infer-seg.py --engine /models/yolov8n-3mu-seg.engine --imgs /samples --show
 ```
 
-## Taotoolkit Segmentation Model Training and Deployment
-
-1) TaoToolkit:
-- https://docs.nvidia.com/tao/tao-toolkit/text/tao_toolkit_quick_start_guide.html#running-tao-toolkit
-- [Sample Workflows](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/tao/resources/cv_samples)
-
-2) Dataset:
-- https://docs.nvidia.com/tao/tao-toolkit/text/data_annotation_format.html#semantic-segmentation-format
-- https://docs.nvidia.com/tao/tao-toolkit/text/semantic_segmentation/segformer.html#dataset-config-segformer
-
-3) Training:
-- https://docs.nvidia.com/tao/tao-toolkit/text/semantic_segmentation/segformer.html
-
-4) Deploy:
-- [To TensorRT](https://docs.nvidia.com/tao/tao-toolkit/text/tao_deploy/segformer.html)
-- [To Deepstream](https://docs.nvidia.com/tao/tao-toolkit/text/ds_tao/segformer_ds.html#deploying-to-deepstream-segformer)
